@@ -98,7 +98,7 @@ export function NotebookView() {
     <section className="flex flex-col items-center gap-3">
       <div className="drop-shadow-[0_18px_30px_rgba(0,0,0,.28)]">
         <HTMLFlipBook
-          key={`${bookWidth}x${bookHeight}`}
+          key={`${bookWidth}x${bookHeight}:${pageIds.join(",")}`}
           ref={bookRef}
           width={bookWidth}
           height={bookHeight}

@@ -16,6 +16,7 @@ import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
 import { StickerLayer } from "@/modules/stickers/views/StickerLayer";
 import { DateBadge } from "../components/DateBadge";
+import { Greeting } from "../components/Greeting";
 import { useBoardStore } from "../store/useBoardStore";
 import { useBoardSync } from "../hooks/useBoardSync";
 
@@ -63,9 +64,7 @@ export function Desk() {
       <div ref={deskRef} className="relative h-dvh w-full overflow-hidden">
         {/* top bar */}
         <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4">
-          <h1 className="text-ink/80 pointer-events-auto text-3xl font-bold">
-            Mi libreta
-          </h1>
+          <Greeting />
           <div className="pointer-events-auto flex items-start gap-3">
             <StickerSheet />
             <Button

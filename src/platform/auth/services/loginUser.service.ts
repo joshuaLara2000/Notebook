@@ -1,4 +1,5 @@
 import { supabase, isSupabaseEnabled } from "@/platform/supabase/client";
+import { mapUser } from "../mapUser";
 import type { LoginResult } from "../types";
 import type { LoginInput } from "@/modules/login/schemas/login.schema";
 
@@ -14,8 +15,9 @@ export async function loginUser({
     email,
     password,
   });
-  if (error || !data.user) {
+  const user = mapUser(data.user);
+  if (error || !user) {
     return { ok: false, error: "Correo o contraseña incorrectos." };
   }
-  return { ok: true, user: { id: data.user.id, email: data.user.email ?? email } };
+  return { ok: true, user };
 }

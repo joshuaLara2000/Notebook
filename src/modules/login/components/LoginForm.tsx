@@ -13,7 +13,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-const initialValues: LoginInput = { email: "", password: "" };
+const initialValues: LoginInput & { name: string } = {
+  email: "",
+  password: "",
+  name: "",
+};
 
 export function LoginForm() {
   const setUser = useAuthStore((s) => s.setUser);
@@ -50,6 +54,23 @@ export function LoginForm() {
         values,
       }) => (
         <Form className="flex w-full flex-col gap-4">
+          {mode === "signup" && (
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="name">Nombre</Label>
+              <Field
+                as={Input}
+                id="name"
+                name="name"
+                placeholder="Tu nombre"
+                autoComplete="name"
+                disabled={isSubmitting}
+                onBlur={handleBlur}
+                onChange={handleChange}
+                value={values.name}
+              />
+            </div>
+          )}
+
           <div className="flex flex-col gap-2">
             <Label htmlFor="email">Correo</Label>
             <Field
