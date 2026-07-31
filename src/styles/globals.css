@@ -1,0 +1,117 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Notebook design tokens — "stationery / playful" aesthetic.
+ * Semantic tokens live here; feature code must consume these, never raw hex.
+ * See .agents/skills/notebook-ui for the design brief.
+ */
+:root {
+  --radius: 0.625rem;
+
+  /* Surfaces */
+  --desk: #e8e2d4;            /* wooden/cork desk background */
+  --desk-2: #ded7c6;
+  --paper: #fffdf7;          /* notebook page */
+  --paper-line: #cdd7e5;     /* ruled line */
+  --paper-margin: #e7b7b0;   /* red margin line */
+
+  /* Ink */
+  --ink: #2b2b33;
+  --ink-soft: #6b6b76;
+
+  /* Post-it palette (from reference PDF) */
+  --postit-yellow: #fce88a;
+  --postit-pink: #f7d6d0;
+  --postit-orange: #f4623a;
+  --postit-cyan: #a6e3f0;
+  --postit-green: #9ccc65;
+  --postit-blue: #5f8fb0;
+
+  /* Accents */
+  --accent-cal: #2f4b7c;     /* calendar header blue */
+  --urgent: #4a4a63;
+
+  /* shadcn-compatible semantic tokens */
+  --background: var(--desk);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--accent-cal);
+  --primary-foreground: #fbfbfe;
+  --secondary: var(--desk-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--desk-2);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--postit-yellow);
+  --accent-foreground: var(--ink);
+  --destructive: #d64545;
+  --border: rgba(43, 43, 51, 0.12);
+  --input: rgba(43, 43, 51, 0.15);
+  --ring: var(--accent-cal);
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-desk: var(--desk);
+  --color-paper: var(--paper);
+  --color-paper-line: var(--paper-line);
+  --color-paper-margin: var(--paper-margin);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-postit-yellow: var(--postit-yellow);
+  --color-postit-pink: var(--postit-pink);
+  --color-postit-orange: var(--postit-orange);
+  --color-postit-cyan: var(--postit-cyan);
+  --color-postit-green: var(--postit-green);
+  --color-postit-blue: var(--postit-blue);
+  --color-urgent: var(--urgent);
+
+  --font-hand: "Patrick Hand", "Comic Sans MS", ui-rounded, cursive;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* subtle desk texture */
+    background-image:
+      radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-font-smoothing: antialiased;
+  }
+}
