@@ -2,6 +2,8 @@ import { forwardRef, useCallback } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
+import { cn } from "@/lib/utils";
+import { RichTextArea } from "@/shared/ui/RichTextArea";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 
 interface NotebookPageSheetProps {
@@ -10,11 +12,10 @@ interface NotebookPageSheetProps {
 
 /**
  * Attaches *native* mousedown/touch/pointer listeners that stop propagation
- * before the event reaches react-pageflip's own listener on an ancestor.
- * A React `onMouseDown` is not enough: React 19 delegates handlers to the app
- * root (above the flip wrapper), so its stopPropagation runs too late and the
- * flip engine has already preventDefault'd the event, blocking focus.
- * Returns a React 19 ref-cleanup callback.
+ * before the event reaches react-pageflip's own listener on an ancestor
+ * (React 19 delegates handlers to the app root, too late to beat the flip
+ * engine's preventDefault). Used for the plain URGENTE textarea; the rich
+ * content editor already does this internally.
  */
 function useStopFlipRef() {
   return useCallback((el: HTMLTextAreaElement | null) => {
@@ -31,15 +32,17 @@ function useStopFlipRef() {
   }, []);
 }
 
+const PAPER_CLASS = {
+  ruled: "paper-ruled",
+  grid: "paper-grid",
+  blank: "paper-blank",
+} as const;
+
 /**
- * A single ruled notebook page matching the reference: "FECHA __/__/__"
- * header, dotted ruled lines, an "URGENTE" box and a spiral binding at the
- * left edge. Forwarded ref is required by react-pageflip.
- *
- * The page subscribes to *its own* slice of the board store so that typing
- * only re-renders this leaf — never `NotebookView`. If the parent re-rendered
- * on every keystroke, react-pageflip would rebuild the page DOM and the
- * textarea would lose focus after each character.
+ * A single notebook page: "FECHA" header, a rich-text writing area on the
+ * chosen paper style, an "URGENTE" box and a spiral binding. Forwarded ref is
+ * required by react-pageflip. Subscribes to its own page slice so typing only
+ * re-renders this leaf (otherwise the flip engine would rebuild and steal focus).
  */
 export const NotebookPageSheet = forwardRef<
   HTMLDivElement,
@@ -47,6 +50,7 @@ export const NotebookPageSheet = forwardRef<
 >(({ pageId }, ref) => {
   const page = useBoardStore((s) => s.pages.find((p) => p.id === pageId));
   const updatePage = useBoardStore((s) => s.updatePage);
+  const notebookStyle = useBoardStore((s) => s.notebookStyle);
   const stopFlipRef = useStopFlipRef();
 
   // react-pageflip expects a real element per child even if data is missing.
@@ -74,19 +78,15 @@ export const NotebookPageSheet = forwardRef<
           FECHA: <span className="text-ink">{dateLabel}</span>
         </div>
 
-        {/* ruled writing area */}
-        <textarea
-          ref={stopFlipRef}
-          value={page.content}
-          onChange={(e) => updatePage(pageId, { content: e.target.value })}
-          placeholder="Escribe tus apuntes…"
-          className="font-hand text-ink placeholder:text-ink/25 min-h-0 flex-1 resize-none bg-transparent text-xl leading-[2rem] outline-none"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(transparent, transparent calc(2rem - 1px), var(--paper-line) calc(2rem - 1px), var(--paper-line) 2rem)",
-            backgroundAttachment: "local",
-          }}
-        />
+        {/* rich writing area on the selected paper style */}
+        <div className={cn("min-h-0 flex-1", PAPER_CLASS[notebookStyle])}>
+          <RichTextArea
+            html={page.content}
+            onChange={(v) => updatePage(pageId, { content: v })}
+            placeholder="Escribe tus apuntes…"
+            className="font-hand text-ink h-full text-xl leading-[2rem]"
+          />
+        </div>
 
         {/* URGENTE box */}
         <div className="mt-3 rounded-md border-2 border-dashed border-ink/25 p-2">

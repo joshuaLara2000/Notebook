@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 
 import type {
   NotebookPage,
+  NotebookStyle,
   PostIt,
   PostItColor,
   StickerInstance,
@@ -26,7 +27,8 @@ function makePage(index: number): NotebookPage {
   return {
     id: uid(),
     index,
-    date: index === 0 ? new Date().toISOString() : null,
+    // Every new page is stamped with today's date automatically.
+    date: new Date().toISOString(),
     content: "",
     urgent: "",
   };
@@ -36,6 +38,7 @@ interface BoardState {
   postits: PostIt[];
   stickers: StickerInstance[];
   pages: NotebookPage[];
+  notebookStyle: NotebookStyle;
   topZ: number;
 
   // post-its
@@ -60,6 +63,8 @@ interface BoardState {
   // notebook
   updatePage: (id: string, patch: Partial<NotebookPage>) => void;
   addPage: () => void;
+  removePage: (id: string) => void;
+  setNotebookStyle: (style: NotebookStyle) => void;
 }
 
 export const useBoardStore = create<BoardState>()(
@@ -68,6 +73,7 @@ export const useBoardStore = create<BoardState>()(
       postits: [],
       stickers: [],
       pages: [makePage(0)],
+      notebookStyle: "ruled",
       topZ: 1,
 
       addPostIt: (color) =>
@@ -190,6 +196,17 @@ export const useBoardStore = create<BoardState>()(
 
       addPage: () =>
         set((s) => ({ pages: [...s.pages, makePage(s.pages.length)] })),
+
+      removePage: (id) =>
+        set((s) => {
+          if (s.pages.length <= 1) return { pages: [makePage(0)] };
+          const remaining = s.pages
+            .filter((p) => p.id !== id)
+            .map((p, i) => ({ ...p, index: i }));
+          return { pages: remaining };
+        }),
+
+      setNotebookStyle: (style) => set({ notebookStyle: style }),
     }),
     {
       name: "notebook-board",

@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import type { PostItColor } from "@/shared/types/board";
 import { useBoardStore, POSTIT_COLORS } from "@/modules/desk/store/useBoardStore";
 import { POSTIT_STYLES } from "../constants";
-import { htmlToPlainText } from "../lib/richText";
+import { htmlToPlainText } from "@/shared/utils/richText";
 
 export function NotesSheet() {
   const [open, setOpen] = useState(false);

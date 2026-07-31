@@ -6,10 +6,10 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { PostIt } from "@/shared/types/board";
 import { POSTIT_STYLES } from "../constants";
-import { htmlToPlainText } from "../lib/richText";
+import { htmlToPlainText } from "@/shared/utils/richText";
+import { RichTextArea } from "@/shared/ui/RichTextArea";
+import { RichToolbar } from "@/shared/ui/RichToolbar";
 import { detectInsights } from "../lib/insights";
-import { RichTextArea } from "./RichTextArea";
-import { RichToolbar } from "./RichToolbar";
 import { InsightsRow } from "./InsightsRow";
 
 const MIN_W = 150;
@@ -92,7 +92,7 @@ export function PostItCard({
       {...listeners}
       onPointerDown={handleContainerPointerDown}
       className={cn(
-        "group absolute select-none",
+        "group pointer-events-auto absolute select-none",
         editing ? "cursor-default" : isDragging ? "cursor-grabbing" : "cursor-grab"
       )}
       style={{

@@ -36,6 +36,8 @@ export interface StickerInstance {
   zIndex: number;
 }
 
+export type NotebookStyle = "ruled" | "grid" | "blank";
+
 export interface NotebookPage {
   id: string;
   index: number;

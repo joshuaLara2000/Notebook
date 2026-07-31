@@ -29,13 +29,25 @@ export function RichTextArea({
     () => html.replace(/<[^>]*>/g, "").trim().length === 0
   );
 
-  // Set initial content once on mount.
+  // Set initial content once on mount, and attach *native* listeners that stop
+  // pointer/mouse/touch events from reaching an ancestor. This keeps the editor
+  // usable inside react-pageflip (whose flip engine would otherwise swallow the
+  // event and block focus) and prevents dragging when placed on a draggable.
   useEffect(() => {
     const el = ref.current;
-    if (el) {
-      el.innerHTML = html;
-      setEmpty((el.textContent || "").trim().length === 0);
-    }
+    if (!el) return;
+    el.innerHTML = html;
+    setEmpty((el.textContent || "").trim().length === 0);
+
+    const stop = (e: Event) => e.stopPropagation();
+    el.addEventListener("mousedown", stop);
+    el.addEventListener("touchstart", stop);
+    el.addEventListener("pointerdown", stop);
+    return () => {
+      el.removeEventListener("mousedown", stop);
+      el.removeEventListener("touchstart", stop);
+      el.removeEventListener("pointerdown", stop);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

@@ -123,6 +123,33 @@
   .rich-note a {
     text-decoration: underline;
   }
+  /* Notebook paper styles — applied to the page's scrolling editor */
+  .paper-ruled .rich-note {
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent calc(2rem - 1px),
+      var(--paper-line) calc(2rem - 1px),
+      var(--paper-line) 2rem
+    );
+    background-attachment: local;
+  }
+  .paper-grid .rich-note {
+    background-image:
+      repeating-linear-gradient(
+        transparent,
+        transparent calc(2rem - 1px),
+        var(--paper-line) calc(2rem - 1px),
+        var(--paper-line) 2rem
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent calc(2rem - 1px),
+        var(--paper-line) calc(2rem - 1px),
+        var(--paper-line) 2rem
+      );
+    background-attachment: local;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-round);

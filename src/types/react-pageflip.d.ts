@@ -5,6 +5,10 @@ declare module "react-pageflip" {
     flipNext: () => void;
     flipPrev: () => void;
     flip: (page: number) => void;
+    /** Instant page changes — reliable in portrait mode where flip* can fail. */
+    turnToNextPage: () => void;
+    turnToPrevPage: () => void;
+    turnToPage: (page: number) => void;
     getCurrentPageIndex: () => number;
     getPageCount: () => number;
   }

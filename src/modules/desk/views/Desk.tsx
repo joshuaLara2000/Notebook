@@ -74,15 +74,15 @@ export function Desk() {
           </div>
         </div>
 
-        {/* two-column desk: post-its left, notebook right */}
-        <div className="grid h-full w-full grid-cols-1 md:grid-cols-2">
-          <div className="relative order-2 h-full border-black/5 md:order-1 md:border-r">
-            <PostItWall />
-          </div>
-          <div className="relative order-1 h-full pt-20 md:order-2">
+        {/* notebook — right side, leaving the open desk on the left for post-its */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center md:justify-end md:pr-40">
+          <div className="pointer-events-auto">
             <NotebookView />
           </div>
         </div>
+
+        {/* post-its float freely over the whole desk (including the notebook) */}
+        <PostItWall />
 
         {/* stickers placed on the board float above everything */}
         <StickerLayer />

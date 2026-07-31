@@ -3,7 +3,7 @@ import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
-import { htmlToPlainText } from "../lib/richText";
+import { htmlToPlainText } from "@/shared/utils/richText";
 import { PostItCard } from "../components/PostItCard";
 import { NotesSheet } from "../components/NotesSheet";
 
@@ -29,8 +29,10 @@ export function PostItWall() {
   );
 
   return (
-    <section className="relative isolate h-full w-full overflow-hidden">
-      <header className="pointer-events-none absolute left-5 top-16 z-10 flex items-center gap-3">
+    // Full-desk layer: transparent to pointer events except the notes and the
+    // header, so the notebook underneath stays writable where no note covers it.
+    <section className="pointer-events-none absolute inset-0 z-20 isolate overflow-hidden">
+      <header className="absolute left-5 top-16 z-10 flex items-center gap-3">
         <h2 className="text-ink/70 text-2xl font-bold">Post-its</h2>
         <Button
           size="sm"
@@ -46,7 +48,7 @@ export function PostItWall() {
       </header>
 
       {visible.length === 0 && (
-        <div className="text-ink/35 font-hand absolute inset-0 flex items-center justify-center px-6 text-center text-xl">
+        <div className="text-ink/35 font-hand absolute left-8 top-32 max-w-xs text-xl">
           Toca “Nuevo” para pegar tu primer post-it
         </div>
       )}
