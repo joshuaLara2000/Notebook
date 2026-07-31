@@ -2,12 +2,10 @@ import { forwardRef, useCallback } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-import type { NotebookPage } from "@/shared/types/board";
+import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 
 interface NotebookPageSheetProps {
-  page: NotebookPage;
-  onChangeContent: (value: string) => void;
-  onChangeUrgent: (value: string) => void;
+  pageId: string;
 }
 
 /**
@@ -37,16 +35,26 @@ function useStopFlipRef() {
  * A single ruled notebook page matching the reference: "FECHA __/__/__"
  * header, dotted ruled lines, an "URGENTE" box and a spiral binding at the
  * left edge. Forwarded ref is required by react-pageflip.
+ *
+ * The page subscribes to *its own* slice of the board store so that typing
+ * only re-renders this leaf — never `NotebookView`. If the parent re-rendered
+ * on every keystroke, react-pageflip would rebuild the page DOM and the
+ * textarea would lose focus after each character.
  */
 export const NotebookPageSheet = forwardRef<
   HTMLDivElement,
   NotebookPageSheetProps
->(({ page, onChangeContent, onChangeUrgent }, ref) => {
+>(({ pageId }, ref) => {
+  const page = useBoardStore((s) => s.pages.find((p) => p.id === pageId));
+  const updatePage = useBoardStore((s) => s.updatePage);
+  const stopFlipRef = useStopFlipRef();
+
+  // react-pageflip expects a real element per child even if data is missing.
+  if (!page) return <div ref={ref} className="bg-paper h-full w-full" />;
+
   const dateLabel = page.date
     ? format(new Date(page.date), "dd 'de' MMMM, yyyy", { locale: es })
     : "__ / __ / ____";
-
-  const stopFlipRef = useStopFlipRef();
 
   return (
     <div ref={ref} className="bg-paper h-full w-full">
@@ -70,7 +78,7 @@ export const NotebookPageSheet = forwardRef<
         <textarea
           ref={stopFlipRef}
           value={page.content}
-          onChange={(e) => onChangeContent(e.target.value)}
+          onChange={(e) => updatePage(pageId, { content: e.target.value })}
           placeholder="Escribe tus apuntes…"
           className="font-hand text-ink placeholder:text-ink/25 min-h-0 flex-1 resize-none bg-transparent text-xl leading-[2rem] outline-none"
           style={{
@@ -93,7 +101,7 @@ export const NotebookPageSheet = forwardRef<
           <textarea
             ref={stopFlipRef}
             value={page.urgent}
-            onChange={(e) => onChangeUrgent(e.target.value)}
+            onChange={(e) => updatePage(pageId, { urgent: e.target.value })}
             placeholder="Algo que no puede esperar…"
             className="font-hand text-ink placeholder:text-ink/25 h-12 w-full resize-none bg-transparent text-lg leading-tight outline-none"
           />

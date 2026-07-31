@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import HTMLFlipBook from "react-pageflip";
 import type { PageFlipMethods } from "react-pageflip";
+import { useShallow } from "zustand/react/shallow";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,10 @@ import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 import { NotebookPageSheet } from "../components/NotebookPageSheet";
 
 export function NotebookView() {
-  const pages = useBoardStore((s) => s.pages);
-  const updatePage = useBoardStore((s) => s.updatePage);
+  // Subscribe to the page *ids* only (shallow-compared), so editing page
+  // content never re-renders this view — otherwise react-pageflip would
+  // rebuild the pages on every keystroke and the textarea would lose focus.
+  const pageIds = useBoardStore(useShallow((s) => s.pages.map((p) => p.id)));
   const addPage = useBoardStore((s) => s.addPage);
 
   const bookRef = useRef<{ pageFlip: () => PageFlipMethods } | null>(null);
@@ -35,13 +38,8 @@ export function NotebookView() {
           disableFlipByClick
           className="notebook-book"
         >
-          {pages.map((page) => (
-            <NotebookPageSheet
-              key={page.id}
-              page={page}
-              onChangeContent={(v) => updatePage(page.id, { content: v })}
-              onChangeUrgent={(v) => updatePage(page.id, { urgent: v })}
-            />
+          {pageIds.map((id) => (
+            <NotebookPageSheet key={id} pageId={id} />
           ))}
         </HTMLFlipBook>
       </div>
@@ -57,7 +55,7 @@ export function NotebookView() {
           <ChevronLeft className="size-4" />
         </Button>
         <span className="font-hand text-ink/60 min-w-16 text-center text-lg">
-          {pages.length} {pages.length === 1 ? "hoja" : "hojas"}
+          {pageIds.length} {pageIds.length === 1 ? "hoja" : "hojas"}
         </span>
         <Button
           variant="outline"
