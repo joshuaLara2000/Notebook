@@ -39,6 +39,8 @@ interface BoardState {
   stickers: StickerInstance[];
   pages: NotebookPage[];
   notebookStyle: NotebookStyle;
+  /** id of the notebook page currently shown — scopes which stickers render */
+  currentPageId: string;
   topZ: number;
 
   // post-its
@@ -58,6 +60,7 @@ interface BoardState {
   // stickers
   addSticker: (kind: string, x: number, y: number) => void;
   moveSticker: (id: string, x: number, y: number) => void;
+  resizeSticker: (id: string, scale: number) => void;
   removeSticker: (id: string) => void;
 
   // notebook
@@ -65,15 +68,30 @@ interface BoardState {
   addPage: () => void;
   removePage: (id: string) => void;
   setNotebookStyle: (style: NotebookStyle) => void;
+  setCurrentPage: (id: string) => void;
+
+  // sync
+  /** Reemplaza el tablero con datos remotos (al iniciar sesión). */
+  hydrate: (data: {
+    pages: NotebookPage[];
+    postits: PostIt[];
+    stickers: StickerInstance[];
+    notebookStyle: NotebookStyle;
+  }) => void;
+  /** Vuelve al tablero vacío por defecto (al cerrar sesión). */
+  reset: () => void;
 }
 
 export const useBoardStore = create<BoardState>()(
   persist(
-    (set) => ({
+    (set) => {
+      const initialPage = makePage(0);
+      return {
       postits: [],
       stickers: [],
-      pages: [makePage(0)],
+      pages: [initialPage],
       notebookStyle: "ruled",
+      currentPageId: initialPage.id,
       topZ: 1,
 
       addPostIt: (color) =>
@@ -170,6 +188,7 @@ export const useBoardStore = create<BoardState>()(
           const sticker: StickerInstance = {
             id: uid(),
             kind,
+            pageId: s.currentPageId,
             x,
             y,
             rotation: Math.random() * 12 - 6,
@@ -183,6 +202,13 @@ export const useBoardStore = create<BoardState>()(
         set((s) => ({
           stickers: s.stickers.map((st) =>
             st.id === id ? { ...st, x, y } : st
+          ),
+        })),
+
+      resizeSticker: (id, scale) =>
+        set((s) => ({
+          stickers: s.stickers.map((st) =>
+            st.id === id ? { ...st, scale } : st
           ),
         })),
 
@@ -207,10 +233,44 @@ export const useBoardStore = create<BoardState>()(
         }),
 
       setNotebookStyle: (style) => set({ notebookStyle: style }),
-    }),
+
+      setCurrentPage: (id) => set({ currentPageId: id }),
+
+      hydrate: (data) =>
+        set(() => {
+          const pages = data.pages.length ? data.pages : [makePage(0)];
+          const maxZ = Math.max(
+            1,
+            ...data.postits.map((p) => p.zIndex),
+            ...data.stickers.map((s) => s.zIndex)
+          );
+          return {
+            pages,
+            postits: data.postits,
+            stickers: data.stickers,
+            notebookStyle: data.notebookStyle,
+            currentPageId: pages[0].id,
+            topZ: maxZ + 1,
+          };
+        }),
+
+      reset: () =>
+        set(() => {
+          const page = makePage(0);
+          return {
+            pages: [page],
+            postits: [],
+            stickers: [],
+            notebookStyle: "ruled" as NotebookStyle,
+            currentPageId: page.id,
+            topZ: 1,
+          };
+        }),
+      };
+    },
     {
       name: "notebook-board",
-      version: 2,
+      version: 3,
       // Backfill notes saved before archive/updatedAt/size existed.
       migrate: (persisted) => {
         const state = persisted as Partial<BoardState> | undefined;
@@ -223,6 +283,14 @@ export const useBoardStore = create<BoardState>()(
             height: p.height ?? 184,
           })) as PostIt[];
         }
+        // Bind legacy stickers to the first page; set the current page.
+        const firstPageId = state?.pages?.[0]?.id ?? "";
+        if (state?.stickers) {
+          state.stickers = (state.stickers as Partial<StickerInstance>[]).map(
+            (st) => ({ ...st, pageId: st.pageId ?? firstPageId })
+          ) as StickerInstance[];
+        }
+        if (state && !state.currentPageId) state.currentPageId = firstPageId;
         return state as BoardState;
       },
     }

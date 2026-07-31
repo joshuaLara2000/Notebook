@@ -1,6 +1,8 @@
 export interface AuthUser {
   id: string;
   email: string;
+  /** Nombre para mostrar (de user_metadata) o, si falta, la parte local del correo. */
+  name: string;
 }
 
 export type LoginResult =

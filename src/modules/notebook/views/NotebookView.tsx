@@ -29,7 +29,8 @@ const PAPER_OPTIONS: { value: NotebookStyle; icon: typeof Square; label: string 
 
 function computeBookSize() {
   const h = typeof window !== "undefined" ? window.innerHeight : 800;
-  const height = Math.min(720, Math.max(460, h - 230));
+  // Larger book on tall screens; reserve room for the top bar and the controls.
+  const height = Math.min(900, Math.max(480, h - 250));
   return { bookHeight: height, bookWidth: Math.round(height * 0.75) };
 }
 
@@ -41,6 +42,21 @@ export function NotebookView() {
   const removePage = useBoardStore((s) => s.removePage);
   const notebookStyle = useBoardStore((s) => s.notebookStyle);
   const setNotebookStyle = useBoardStore((s) => s.setNotebookStyle);
+  const setCurrentPage = useBoardStore((s) => s.setCurrentPage);
+
+  // Índice de la hoja visible, para mostrar "actual/total" en el navegador.
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Keep the store's "current page" in sync so stickers scope to this page.
+  useEffect(() => {
+    if (pageIds[0]) setCurrentPage(pageIds[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const handleFlip = (e: { data: number }) => {
+    setCurrentIndex(e.data);
+    const id = pageIds[e.data];
+    if (id) setCurrentPage(id);
+  };
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -64,7 +80,12 @@ export function NotebookView() {
     if (!a) return;
     dir === "next" ? a.flipNext() : a.turnToPrevPage();
   };
-  const goToPage = (index: number) => api()?.turnToPage(index);
+  const goToPage = (index: number) => {
+    api()?.turnToPage(index);
+    setCurrentIndex(index);
+    const id = pageIds[index];
+    if (id) setCurrentPage(id);
+  };
 
   const deleteCurrentPage = () => {
     const index = api()?.getCurrentPageIndex() ?? 0;
@@ -74,7 +95,7 @@ export function NotebookView() {
   };
 
   return (
-    <section className="flex h-full w-full flex-col items-center justify-center gap-3">
+    <section className="flex flex-col items-center gap-3">
       <div className="drop-shadow-[0_18px_30px_rgba(0,0,0,.28)]">
         <HTMLFlipBook
           key={`${bookWidth}x${bookHeight}`}
@@ -85,9 +106,12 @@ export function NotebookView() {
           showCover={false}
           usePortrait
           mobileScrollSupport={false}
-          maxShadowOpacity={0.35}
+          flippingTime={800}
+          maxShadowOpacity={0.6}
+          showPageCorners
           drawShadow
           disableFlipByClick
+          onFlip={handleFlip}
           className="notebook-book"
         >
           {pageIds.map((id) => (
@@ -107,8 +131,9 @@ export function NotebookView() {
         >
           <ChevronLeft className="size-4" />
         </Button>
-        <span className="text-ink/60 min-w-16 text-center text-base font-semibold">
-          {pageIds.length} {pageIds.length === 1 ? "hoja" : "hojas"}
+        <span className="text-ink/60 min-w-20 text-center text-base font-semibold">
+          {Math.min(currentIndex, pageIds.length - 1) + 1}/{pageIds.length}{" "}
+          {pageIds.length === 1 ? "hoja" : "hojas"}
         </span>
         <Button
           variant="outline"

@@ -37,9 +37,6 @@ export function Login() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <LoginForm />
-          <p className="text-ink-soft text-center text-xs">
-            Acceso temporal local — pendiente de conectar con Supabase.
-          </p>
         </CardContent>
       </Card>
     </main>

@@ -1,11 +1,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 /**
- * Supabase browser client.
- *
- * Reads credentials from Vite env (`.env`). When they are missing the client
- * is `null` and the app keeps working off the local (zustand + localStorage)
- * store. Sync code must guard on `isSupabaseEnabled` before querying.
+ * Cliente de Supabase para el navegador. Persiste la sesión y refresca el token
+ * solo para que el login sobreviva recargas. Si faltan credenciales, es null.
  */
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as
@@ -16,6 +13,10 @@ export const isSupabaseEnabled = Boolean(url && publishableKey);
 
 export const supabase: SupabaseClient | null = isSupabaseEnabled
   ? createClient(url as string, publishableKey as string, {
-      auth: { persistSession: false },
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        storageKey: "notebook-sb-auth",
+      },
     })
   : null;

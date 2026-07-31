@@ -29,6 +29,8 @@ export interface StickerInstance {
   id: string;
   /** references a sticker kind from the stickers catalog */
   kind: string;
+  /** the notebook page this sticker belongs to; it only shows on that page */
+  pageId: string;
   x: number;
   y: number;
   rotation: number;

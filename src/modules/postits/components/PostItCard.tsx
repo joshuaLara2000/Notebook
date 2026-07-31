@@ -102,14 +102,18 @@ export function PostItCard({
         height,
         zIndex: postit.zIndex,
         transform: `${CSS.Translate.toString(transform) ?? ""} rotate(${postit.rotation}deg)`,
-        filter: isDragging
-          ? "drop-shadow(0 16px 20px rgba(0,0,0,.28))"
-          : "drop-shadow(0 6px 10px rgba(0,0,0,.18))",
       }}
     >
       <div
         className="relative flex h-full w-full flex-col"
-        style={{ backgroundColor: style.bg }}
+        style={{
+          backgroundColor: style.bg,
+          // box-shadow (not filter: drop-shadow) — avoids Safari repaint
+          // trails when the note is dragged or resized.
+          boxShadow: isDragging
+            ? "0 16px 24px rgba(0,0,0,.28)"
+            : "0 6px 12px rgba(0,0,0,.18)",
+        }}
       >
         {/* header grip (drag handle) */}
         <div className="flex h-7 w-full shrink-0 items-center justify-center">

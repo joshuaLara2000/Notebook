@@ -10,17 +10,23 @@ import {
 import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/platform/auth/store/useAuthStore";
+import { logoutUser } from "@/platform/auth/services/logoutUser.service";
 import { PostItWall } from "@/modules/postits/views/PostItWall";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
 import { StickerLayer } from "@/modules/stickers/views/StickerLayer";
 import { DateBadge } from "../components/DateBadge";
 import { useBoardStore } from "../store/useBoardStore";
+import { useBoardSync } from "../hooks/useBoardSync";
 
 export function Desk() {
   const deskRef = useRef<HTMLDivElement>(null);
-  const signOut = useAuthStore((s) => s.signOut);
+  // Carga y sincroniza el tablero del usuario con Supabase.
+  useBoardSync();
+  const handleLogout = async () => {
+    await logoutUser();
+    useBoardStore.getState().reset();
+  };
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
@@ -66,7 +72,7 @@ export function Desk() {
               variant="ghost"
               size="sm"
               className="gap-1 rounded-full"
-              onClick={signOut}
+              onClick={handleLogout}
             >
               <LogOut className="size-4" /> Salir
             </Button>
@@ -74,8 +80,9 @@ export function Desk() {
           </div>
         </div>
 
-        {/* notebook — right side, leaving the open desk on the left for post-its */}
-        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center md:justify-end md:pr-40">
+        {/* notebook — anchored to the bottom-right, leaving the open desk on the
+            left for post-its. Top padding keeps it clear of the top bar/date. */}
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-end pt-28 pr-6 pb-6">
           <div className="pointer-events-auto">
             <NotebookView />
           </div>

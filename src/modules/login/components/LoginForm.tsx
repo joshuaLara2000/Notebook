@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Formik, Form, Field } from "formik";
 
 import { loginUser } from "@/platform/auth/services/loginUser.service";
+import { signUpUser } from "@/platform/auth/services/signUpUser.service";
 import { useAuthStore } from "@/platform/auth/store/useAuthStore";
 import {
   loginSchema,
@@ -14,7 +16,8 @@ import { cn } from "@/lib/utils";
 const initialValues: LoginInput = { email: "", password: "" };
 
 export function LoginForm() {
-  const signIn = useAuthStore((s) => s.signIn);
+  const setUser = useAuthStore((s) => s.setUser);
+  const [mode, setMode] = useState<"login" | "signup">("login");
 
   return (
     <Formik
@@ -22,20 +25,18 @@ export function LoginForm() {
       validationSchema={loginSchema}
       onSubmit={async (values, { setSubmitting, setErrors, setStatus }) => {
         setStatus(undefined);
-
-        const result = await loginUser(values);
+        const result =
+          mode === "login"
+            ? await loginUser(values)
+            : await signUpUser(values);
 
         if (result.ok) {
-          signIn(result.user);
+          // Refleja el usuario de inmediato; el listener de auth lo mantiene al día.
+          setUser(result.user);
           return;
         }
-
-        if (result.fieldErrors) {
-          setErrors(result.fieldErrors);
-        }
-        if (result.error) {
-          setStatus({ error: result.error });
-        }
+        if (result.fieldErrors) setErrors(result.fieldErrors);
+        if (result.error) setStatus({ error: result.error });
         setSubmitting(false);
       }}
     >
@@ -79,7 +80,9 @@ export function LoginForm() {
               id="password"
               name="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete={
+                mode === "login" ? "current-password" : "new-password"
+              }
               placeholder="••••••••"
               disabled={isSubmitting}
               onBlur={handleBlur}
@@ -107,8 +110,24 @@ export function LoginForm() {
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Entrando…" : "Entrar a mi libreta"}
+            {isSubmitting
+              ? mode === "login"
+                ? "Entrando…"
+                : "Creando cuenta…"
+              : mode === "login"
+                ? "Entrar a mi libreta"
+                : "Crear cuenta"}
           </Button>
+
+          <button
+            type="button"
+            onClick={() => setMode(mode === "login" ? "signup" : "login")}
+            className="text-ink-soft hover:text-ink text-center text-sm"
+          >
+            {mode === "login"
+              ? "¿No tienes cuenta? Regístrate"
+              : "¿Ya tienes cuenta? Inicia sesión"}
+          </button>
         </Form>
       )}
     </Formik>
