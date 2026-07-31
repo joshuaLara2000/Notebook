@@ -7,6 +7,10 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 
+import { LogOut } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/platform/auth/store/useAuthStore";
 import { PostItWall } from "@/modules/postits/views/PostItWall";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
@@ -16,6 +20,7 @@ import { useBoardStore } from "../store/useBoardStore";
 
 export function Desk() {
   const deskRef = useRef<HTMLDivElement>(null);
+  const signOut = useAuthStore((s) => s.signOut);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
@@ -57,6 +62,14 @@ export function Desk() {
           </h1>
           <div className="pointer-events-auto flex items-start gap-3">
             <StickerSheet />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 rounded-full"
+              onClick={signOut}
+            >
+              <LogOut className="size-4" /> Salir
+            </Button>
             <DateBadge />
           </div>
         </div>
