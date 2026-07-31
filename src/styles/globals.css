@@ -9,30 +9,32 @@
  * See .agents/skills/notebook-ui for the design brief.
  */
 :root {
-  --radius: 0.625rem;
+  --radius: 1rem;
 
   /* Surfaces */
-  --desk: #e8e2d4;            /* wooden/cork desk background */
-  --desk-2: #ded7c6;
-  --paper: #fffdf7;          /* notebook page */
-  --paper-line: #cdd7e5;     /* ruled line */
-  --paper-margin: #e7b7b0;   /* red margin line */
+  /* Kawaii-soft pastel surfaces (lavender + cream) */
+  --desk: #f2ecfb;           /* pale lavender desk */
+  --desk-2: #e8dff7;
+  --paper: #fffdfb;          /* notebook page */
+  --paper-line: #e4ddf1;     /* ruled line */
+  --paper-margin: #f3c2d5;   /* soft pink margin */
 
-  /* Ink */
-  --ink: #2b2b33;
-  --ink-soft: #6b6b76;
+  /* Ink — soft plum-grey instead of hard black */
+  --ink: #4a4458;
+  --ink-soft: #8a83a0;
 
-  /* Post-it palette (from reference PDF) */
-  --postit-yellow: #fce88a;
-  --postit-pink: #f7d6d0;
-  --postit-orange: #f4623a;
-  --postit-cyan: #a6e3f0;
-  --postit-green: #9ccc65;
-  --postit-blue: #5f8fb0;
+  /* Post-it palette — pastel/candy version of the reference */
+  --postit-yellow: #fdf0a8;
+  --postit-pink: #fbd3e4;
+  --postit-orange: #ffd2b6;  /* peach */
+  --postit-cyan: #c6e9f5;    /* sky */
+  --postit-green: #cfeccb;   /* mint */
+  --postit-blue: #ccd3f8;    /* periwinkle */
 
-  /* Accents */
-  --accent-cal: #2f4b7c;     /* calendar header blue */
-  --urgent: #4a4a63;
+  /* Accents — tender lavender + blush pink */
+  --accent-cal: #8368d1;     /* lavender (calendar header + primary) */
+  --blush: #f7a8c4;          /* decorative pink */
+  --urgent: #b06a97;         /* rosy plum */
 
   /* shadcn-compatible semantic tokens */
   --background: var(--desk);
@@ -93,7 +95,10 @@
   --color-postit-green: var(--postit-green);
   --color-postit-blue: var(--postit-blue);
   --color-urgent: var(--urgent);
+  --color-blush: var(--blush);
 
+  /* Round, bubbly UI font (kawaii chrome) + handwriting for written content */
+  --font-round: "Baloo 2", ui-rounded, "Segoe UI", system-ui, sans-serif;
   --font-hand: "Patrick Hand", "Comic Sans MS", ui-rounded, cursive;
 }
 
@@ -108,10 +113,11 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* subtle desk texture */
+    font-family: var(--font-round);
+    /* subtle lavender desk texture */
     background-image:
-      radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-    background-size: 22px 22px;
+      radial-gradient(rgba(131, 104, 209, 0.06) 1.5px, transparent 1.5px);
+    background-size: 24px 24px;
     -webkit-font-smoothing: antialiased;
   }
 }

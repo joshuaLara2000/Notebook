@@ -14,7 +14,7 @@ export function PostItWall() {
   return (
     <section className="relative h-full w-full overflow-hidden">
       <header className="pointer-events-none absolute left-5 top-16 z-10 flex items-center gap-3">
-        <h2 className="font-hand text-ink/70 text-2xl">Post-its</h2>
+        <h2 className="text-ink/70 text-2xl font-bold">Post-its</h2>
         <Button
           size="sm"
           variant="outline"

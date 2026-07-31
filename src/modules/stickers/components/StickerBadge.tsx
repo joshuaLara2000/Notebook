@@ -20,7 +20,7 @@ export function StickerBadge({ kind, size = 72 }: StickerBadgeProps) {
         transform: "rotate(-2deg)",
         padding: 6,
         fontSize: def.label.length > 4 ? size * 0.16 : size * 0.24,
-        fontFamily: "var(--font-hand)",
+        fontFamily: "var(--font-round)",
       }}
     >
       {def.label}

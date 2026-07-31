@@ -30,7 +30,7 @@ export function Login() {
 
       <Card className="relative z-10 w-full max-w-md">
         <CardHeader>
-          <CardTitle className="font-hand text-3xl">Mi libreta</CardTitle>
+          <CardTitle className="text-3xl font-bold">Mi libreta</CardTitle>
           <CardDescription>
             Inicia sesión para abrir tus apuntes y post-its.
           </CardDescription>

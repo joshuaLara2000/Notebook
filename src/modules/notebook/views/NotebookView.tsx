@@ -54,7 +54,7 @@ export function NotebookView() {
         >
           <ChevronLeft className="size-4" />
         </Button>
-        <span className="font-hand text-ink/60 min-w-16 text-center text-lg">
+        <span className="text-ink/60 min-w-16 text-center text-base font-semibold">
           {pageIds.length} {pageIds.length === 1 ? "hoja" : "hojas"}
         </span>
         <Button

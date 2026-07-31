@@ -42,7 +42,7 @@ export function StickerSheet() {
       </SheetTrigger>
       <SheetContent side="right" className="w-80">
         <SheetHeader>
-          <SheetTitle className="font-hand text-2xl">Stickers</SheetTitle>
+          <SheetTitle className="text-2xl font-bold">Stickers</SheetTitle>
           <SheetDescription>
             Arrastra un sticker hacia la libreta o el tablero.
           </SheetDescription>
