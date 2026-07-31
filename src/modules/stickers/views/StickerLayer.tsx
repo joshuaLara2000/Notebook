@@ -7,7 +7,7 @@ export function StickerLayer() {
   const removeSticker = useBoardStore((s) => s.removeSticker);
 
   return (
-    <div className="pointer-events-none absolute inset-0 z-30">
+    <div className="pointer-events-none absolute inset-0 z-30 isolate">
       {stickers.map((s) => (
         <PlacedSticker
           key={s.id}

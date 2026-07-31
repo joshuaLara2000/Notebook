@@ -10,12 +10,19 @@ export type PostItColor =
 
 export interface PostIt {
   id: string;
+  /** Rich-text content as sanitized HTML (bold/italic/underline/strike/lists). */
   text: string;
   color: PostItColor;
   x: number;
   y: number;
+  width: number;
+  height: number;
   rotation: number;
   zIndex: number;
+  /** Closed notes are hidden from the board but kept in the notes list. */
+  archived: boolean;
+  /** ISO timestamp of the last content edit, for "recently edited" sorting. */
+  updatedAt: string;
 }
 
 export interface StickerInstance {
