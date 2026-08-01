@@ -7,16 +7,16 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 
-import { LogOut } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { logoutUser } from "@/platform/auth/services/logoutUser.service";
 import { PostItWall } from "@/modules/postits/views/PostItWall";
+import { NotesSheet } from "@/modules/postits/components/NotesSheet";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
 import { StickerLayer } from "@/modules/stickers/views/StickerLayer";
 import { DateBadge } from "../components/DateBadge";
-import { Greeting } from "../components/Greeting";
+import { AccountMenu } from "../components/AccountMenu";
 import { useBoardStore } from "../store/useBoardStore";
 import { useBoardSync } from "../hooks/useBoardSync";
 
@@ -24,10 +24,7 @@ export function Desk() {
   const deskRef = useRef<HTMLDivElement>(null);
   // Carga y sincroniza el tablero del usuario con Supabase.
   useBoardSync();
-  const handleLogout = async () => {
-    await logoutUser();
-    useBoardStore.getState().reset();
-  };
+  const addPostIt = useBoardStore((s) => s.addPostIt);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
@@ -62,19 +59,27 @@ export function Desk() {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div ref={deskRef} className="relative h-dvh w-full overflow-hidden">
-        {/* top bar */}
+        {/* top bar: cuenta (izq) · crear (centro) · calendario (der) */}
         <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4">
-          <Greeting />
-          <div className="pointer-events-auto flex items-start gap-3">
-            <StickerSheet />
+          <div className="pointer-events-auto">
+            <AccountMenu />
+          </div>
+
+          {/* herramientas para agregar al escritorio */}
+          <div className="pointer-events-auto flex items-center gap-2">
             <Button
-              variant="ghost"
               size="sm"
+              variant="outline"
               className="gap-1 rounded-full"
-              onClick={handleLogout}
+              onClick={() => addPostIt()}
             >
-              <LogOut className="size-4" /> Salir
+              <Plus className="size-4" /> Post-it
             </Button>
+            <NotesSheet />
+            <StickerSheet />
+          </div>
+
+          <div className="pointer-events-auto">
             <DateBadge />
           </div>
         </div>
