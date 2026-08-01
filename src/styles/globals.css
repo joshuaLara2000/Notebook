@@ -160,3 +160,19 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+/* Volteo de hoja de la libreta (CSS, ambos sentidos) */
+@keyframes nb-flip-next {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-180deg); }
+}
+@keyframes nb-flip-prev {
+  from { transform: rotateY(-180deg); }
+  to { transform: rotateY(0deg); }
+}
+.nb-flip-next {
+  animation: nb-flip-next 0.55s ease-in-out forwards;
+}
+.nb-flip-prev {
+  animation: nb-flip-prev 0.55s ease-in-out forwards;
+}

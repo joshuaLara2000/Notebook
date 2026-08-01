@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import HTMLFlipBook from "react-pageflip";
-import type { PageFlipMethods } from "react-pageflip";
 import { useShallow } from "zustand/react/shallow";
 import {
   AlignJustify,
@@ -14,10 +12,12 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import { RichToolbar } from "@/shared/ui/RichToolbar";
 import type { NotebookStyle } from "@/shared/types/board";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 import { StickerLayer } from "@/modules/stickers/views/StickerLayer";
+import { FlipBook, type FlipBookHandle } from "../components/FlipBook";
 import { NotebookPageSheet } from "../components/NotebookPageSheet";
 import { NotebookIndex } from "../components/NotebookIndex";
 
@@ -54,9 +54,9 @@ export function NotebookView() {
     if (pageIds[0]) setCurrentPage(pageIds[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const handleFlip = (e: { data: number }) => {
-    setCurrentIndex(e.data);
-    const id = pageIds[e.data];
+  const handleFlip = (index: number) => {
+    setCurrentIndex(index);
+    const id = pageIds[index];
     if (id) setCurrentPage(id);
   };
 
@@ -77,43 +77,30 @@ export function NotebookView() {
     setNotebookSize(bookWidth, bookHeight);
   }, [bookWidth, bookHeight, setNotebookSize]);
 
-  const bookRef = useRef<{ pageFlip: () => PageFlipMethods } | null>(null);
-  const api = () => bookRef.current?.pageFlip();
+  const bookRef = useRef<FlipBookHandle | null>(null);
+  const api = () => bookRef.current;
 
-  // Forward flip animates (flipNext works); backward flip is broken in
-  // react-pageflip's portrait mode, so "prev" uses the instant turnToPrevPage.
+  // Volteo 3D propio: anima en ambos sentidos.
   const flip = (dir: "next" | "prev") => {
     const a = api();
     if (!a) return;
-    dir === "next" ? a.flipNext() : a.turnToPrevPage();
+    dir === "next" ? a.flipNext() : a.flipPrev();
   };
-  const goToPage = (index: number) => {
-    api()?.turnToPage(index);
-    setCurrentIndex(index);
-    const id = pageIds[index];
-    if (id) setCurrentPage(id);
-  };
+  const goToPage = (index: number) => api()?.goTo(index);
 
   const deleteCurrentPage = () => {
-    const index = api()?.getCurrentPageIndex() ?? 0;
+    const index = api()?.getIndex() ?? 0;
     const id = pageIds[index];
     if (id) removePage(id);
     setConfirmingDelete(false);
   };
 
-  // Al agregar hoja el flip-book se remonta (reset a la 1ª); saltamos a la nueva.
+  // Al agregar hoja, salta (animando) a la nueva última hoja.
   const jumpToLastRef = useRef(false);
   useEffect(() => {
     if (!jumpToLastRef.current) return;
     jumpToLastRef.current = false;
-    const last = pageIds.length - 1;
-    const t = setTimeout(() => {
-      api()?.turnToPage(last);
-      setCurrentIndex(last);
-      const id = pageIds[last];
-      if (id) setCurrentPage(id);
-    }, 60);
-    return () => clearTimeout(t);
+    api()?.goTo(pageIds.length - 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIds]);
 
@@ -122,30 +109,29 @@ export function NotebookView() {
     addPage();
   };
 
+  // Estado de los extremos para deshabilitar controles.
+  const atFirst = currentIndex <= 0;
+  const atLast = currentIndex >= pageIds.length - 1;
+  const onlyOnePage = pageIds.length <= 1;
+
+  // Atajos: nueva hoja (⌘⏎) y navegar entre hojas (←/→, fuera de edición).
+  useHotkeys([
+    { combo: "mod+enter", handler: handleAddPage, allowInInput: true },
+    { combo: "arrowleft", handler: () => flip("prev") },
+    { combo: "arrowright", handler: () => flip("next") },
+  ]);
+
   return (
     <section className="flex flex-col items-center gap-3">
-      <div className="relative drop-shadow-[0_18px_30px_rgba(0,0,0,.28)]">
-        <HTMLFlipBook
-          key={`${bookWidth}x${bookHeight}:${pageIds.join(",")}`}
+      <div className="relative">
+        <FlipBook
           ref={bookRef}
+          pageIds={pageIds}
+          renderPage={(id) => <NotebookPageSheet pageId={id} />}
           width={bookWidth}
           height={bookHeight}
-          size="fixed"
-          showCover={false}
-          usePortrait
-          mobileScrollSupport={false}
-          flippingTime={800}
-          maxShadowOpacity={0.6}
-          showPageCorners
-          drawShadow
-          disableFlipByClick
           onFlip={handleFlip}
-          className="notebook-book"
-        >
-          {pageIds.map((id) => (
-            <NotebookPageSheet key={id} pageId={id} />
-          ))}
-        </HTMLFlipBook>
+        />
 
         {/* stickers de la hoja actual, encima de la libreta y recortados a ella */}
         <StickerLayer />
@@ -158,7 +144,9 @@ export function NotebookView() {
           size="icon"
           className="rounded-full"
           onClick={() => flip("prev")}
+          disabled={atFirst}
           aria-label="Página anterior"
+          title="Hoja anterior (←)"
         >
           <ChevronLeft className="size-4" />
         </Button>
@@ -171,7 +159,9 @@ export function NotebookView() {
           size="icon"
           className="rounded-full"
           onClick={() => flip("next")}
+          disabled={atLast}
           aria-label="Página siguiente"
+          title="Hoja siguiente (→)"
         >
           <ChevronRight className="size-4" />
         </Button>
@@ -180,6 +170,7 @@ export function NotebookView() {
           size="sm"
           className="ml-1 gap-1 rounded-full"
           onClick={handleAddPage}
+          title={`Nueva hoja (${MOD_LABEL}⏎)`}
         >
           <Plus className="size-4" /> Hoja
         </Button>
@@ -208,8 +199,13 @@ export function NotebookView() {
             size="icon"
             className="text-ink/50 hover:text-destructive rounded-full"
             onClick={() => setConfirmingDelete(true)}
+            disabled={onlyOnePage}
             aria-label="Eliminar hoja actual"
-            title="Eliminar hoja actual"
+            title={
+              onlyOnePage
+                ? "No puedes eliminar la única hoja"
+                : "Eliminar hoja actual"
+            }
           >
             <Trash2 className="size-4" />
           </Button>

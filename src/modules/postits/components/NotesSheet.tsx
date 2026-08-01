@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   ListChecks,
   RotateCcw,
@@ -17,6 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import type { PostItColor } from "@/shared/types/board";
 import { useBoardStore, POSTIT_COLORS } from "@/modules/desk/store/useBoardStore";
 import { POSTIT_STYLES } from "../constants";
@@ -26,6 +27,12 @@ export function NotesSheet() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Atajo: abrir/cerrar el panel de notas.
+  useHotkeys([
+    { combo: "mod+j", handler: () => setOpen((o) => !o), allowInInput: true },
+  ]);
 
   const postits = useBoardStore((s) => s.postits);
   const restorePostIt = useBoardStore((s) => s.restorePostIt);
@@ -55,7 +62,12 @@ export function NotesSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-1 rounded-full">
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1 rounded-full"
+          title={`Todas las notas (${MOD_LABEL}J)`}
+        >
           <ListChecks className="size-4" /> Todas
           {archivedCount > 0 && (
             <span className="bg-primary text-primary-foreground ml-0.5 grid h-5 min-w-5 place-items-center rounded-full px-1 text-xs">
@@ -65,7 +77,15 @@ export function NotesSheet() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="left" className="w-96 gap-0">
+      <SheetContent
+        side="left"
+        className="w-96 gap-0"
+        onOpenAutoFocus={(e) => {
+          // enfoca el buscador al abrir para escribir sin clic
+          e.preventDefault();
+          searchRef.current?.focus();
+        }}
+      >
         <SheetHeader>
           <SheetTitle className="text-2xl font-bold">Todas las notas</SheetTitle>
           <SheetDescription>
@@ -78,11 +98,11 @@ export function NotesSheet() {
           <div className="relative">
             <Search className="text-ink/40 pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
             <Input
+              ref={searchRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar en el contenido…"
               className="pl-9"
-              autoFocus
             />
           </div>
         </div>

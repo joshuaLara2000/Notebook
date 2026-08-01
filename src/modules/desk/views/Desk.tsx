@@ -14,8 +14,10 @@ import { PostItWall } from "@/modules/postits/views/PostItWall";
 import { NotesSheet } from "@/modules/postits/components/NotesSheet";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
+import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import { DateBadge } from "../components/DateBadge";
 import { AccountMenu } from "../components/AccountMenu";
+import { ShortcutsHelp } from "../components/ShortcutsHelp";
 import { useBoardStore } from "../store/useBoardStore";
 import { useBoardSync } from "../hooks/useBoardSync";
 
@@ -24,6 +26,11 @@ export function Desk() {
   // Carga y sincroniza el tablero del usuario con Supabase.
   useBoardSync();
   const addPostIt = useBoardStore((s) => s.addPostIt);
+
+  // Atajo global: crear un post-it (funciona incluso escribiendo).
+  useHotkeys([
+    { combo: "mod+e", handler: () => addPostIt(), allowInInput: true },
+  ]);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
   );
@@ -60,11 +67,13 @@ export function Desk() {
               variant="outline"
               className="gap-1 rounded-full"
               onClick={() => addPostIt()}
+              title={`Nuevo post-it (${MOD_LABEL}E)`}
             >
               <Plus className="size-4" /> Post-it
             </Button>
             <NotesSheet />
             <StickerSheet />
+            <ShortcutsHelp />
           </div>
 
           <div className="pointer-events-auto">
