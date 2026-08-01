@@ -10,6 +10,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 import { STICKERS } from "../catalog";
 import { StickerBadge } from "./StickerBadge";
@@ -17,6 +18,11 @@ import { StickerBadge } from "./StickerBadge";
 export function StickerSheet() {
   const [open, setOpen] = useState(false);
   const addSticker = useBoardStore((s) => s.addSticker);
+
+  // Atajo: abrir/cerrar el panel de stickers.
+  useHotkeys([
+    { combo: "mod+g", handler: () => setOpen((o) => !o), allowInInput: true },
+  ]);
 
   const place = (kind: string) => {
     addSticker(kind);
@@ -26,7 +32,11 @@ export function StickerSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="gap-2 rounded-full shadow-sm">
+        <Button
+          variant="outline"
+          className="gap-2 rounded-full shadow-sm"
+          title={`Stickers (${MOD_LABEL}G)`}
+        >
           <StickerIcon className="size-4" /> Stickers
         </Button>
       </SheetTrigger>

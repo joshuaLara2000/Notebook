@@ -17,6 +17,7 @@ import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
 import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import { DateBadge } from "../components/DateBadge";
 import { AccountMenu } from "../components/AccountMenu";
+import { ShortcutsHelp } from "../components/ShortcutsHelp";
 import { useBoardStore } from "../store/useBoardStore";
 import { useBoardSync } from "../hooks/useBoardSync";
 
@@ -72,6 +73,7 @@ export function Desk() {
             </Button>
             <NotesSheet />
             <StickerSheet />
+            <ShortcutsHelp />
           </div>
 
           <div className="pointer-events-auto">

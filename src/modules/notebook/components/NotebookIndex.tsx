@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ListOrdered, Search } from "lucide-react";
@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { htmlToPlainText } from "@/shared/utils/richText";
+import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 
 interface NotebookIndexProps {
@@ -23,7 +24,13 @@ interface NotebookIndexProps {
 export function NotebookIndex({ onGoToPage }: NotebookIndexProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const pages = useBoardStore((s) => s.pages);
+
+  // Atajo: abrir/cerrar el índice de hojas.
+  useHotkeys([
+    { combo: "mod+k", handler: () => setOpen((o) => !o), allowInInput: true },
+  ]);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -40,12 +47,25 @@ export function NotebookIndex({ onGoToPage }: NotebookIndexProps) {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button size="sm" variant="outline" className="gap-1 rounded-full">
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-1 rounded-full"
+          title={`Índice de hojas (${MOD_LABEL}K)`}
+        >
           <ListOrdered className="size-4" /> Índice
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-96 gap-0">
+      <SheetContent
+        side="right"
+        className="w-96 gap-0"
+        onOpenAutoFocus={(e) => {
+          // enfoca el buscador al abrir para escribir sin clic
+          e.preventDefault();
+          searchRef.current?.focus();
+        }}
+      >
         <SheetHeader>
           <SheetTitle className="text-2xl font-bold">Índice</SheetTitle>
           <SheetDescription>Salta a cualquier hoja o busca por contenido.</SheetDescription>
@@ -55,11 +75,11 @@ export function NotebookIndex({ onGoToPage }: NotebookIndexProps) {
           <div className="relative">
             <Search className="text-ink/40 pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2" />
             <Input
+              ref={searchRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar en las hojas…"
               className="pl-9"
-              autoFocus
             />
           </div>
         </div>

@@ -29,8 +29,10 @@ function matches(combo: string, e: KeyboardEvent): boolean {
 
   const mod = e.metaKey || e.ctrlKey;
   if (wantMod !== mod) return false;
-  if (wantShift !== e.shiftKey) return false;
-  if (wantAlt !== e.altKey) return false;
+  // Shift/Alt solo se exigen si el combo los pide; no se prohíben (así "?" —que
+  // se teclea con Shift— sigue funcionando).
+  if (wantShift && !e.shiftKey) return false;
+  if (wantAlt && !e.altKey) return false;
   return e.key.toLowerCase() === key;
 }
 
