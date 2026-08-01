@@ -14,7 +14,7 @@ const BUTTONS = [
  */
 export function RichToolbar() {
   return (
-    <div className="flex items-center gap-0.5 px-2 pb-1.5">
+    <div className="flex items-center gap-0.5 px-2 py-1">
       {BUTTONS.map(({ cmd, icon: Icon, label }) => (
         <button
           key={cmd}
