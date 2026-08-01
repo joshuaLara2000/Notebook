@@ -33,7 +33,7 @@ export function PostItWall() {
       </header>
 
       {visible.length === 0 && (
-        <div className="text-ink/35 font-hand absolute left-8 top-28 max-w-xs text-xl">
+        <div className="text-ink/35 font-hand pointer-events-none absolute inset-y-0 left-0 right-[42%] flex items-center justify-center px-6 text-center text-xl">
           Usa “+ Post-it” arriba para pegar tu primera nota
         </div>
       )}
