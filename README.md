@@ -33,6 +33,7 @@ interfaz y letra manuscrita para lo que escribes. ✏️💜
 ## 🌟 Funcionalidades
 
 ### 📖 La libreta
+
 - **Volteo 3D propio** que anima al avanzar **y** al regresar (animación inversa real).
 - **Fecha automática** por hoja, fijada el día que la creas.
 - **Texto enriquecido** (negrita, cursiva, subrayado, tachado, viñetas).
@@ -41,6 +42,7 @@ interfaz y letra manuscrita para lo que escribes. ✏️💜
 - Agregar y eliminar hojas, con controles que se deshabilitan solos en los extremos.
 
 ### 🗒️ Post-its
+
 - Notas que **flotan libres** y se arrastran por todo el escritorio.
 - **Texto enriquecido**, **redimensionables** y en varios **colores**.
 - **Insights automáticos**: detecta enlaces, correos, teléfonos y fechas, y los
@@ -49,27 +51,30 @@ interfaz y letra manuscrita para lo que escribes. ✏️💜
   con búsqueda y restauración.
 
 ### 🎀 Stickers y calendario
+
 - Cajón de **stickers** que se colocan con un clic dentro de la libreta.
 - **Calendario de escritorio** flotante con el día actual.
 
 ### 🔐 Cuentas y sincronización
+
 - **Autenticación** por correo y contraseña (Supabase).
 - **Multiusuario**: cada persona ve solo sus notas gracias a **RLS**
   (Row Level Security).
 - Todo se **sincroniza en la nube** automáticamente.
 
 ### ⌨️ Atajos de teclado
+
 Funcionan con **⌘ en Mac** y **Ctrl en Windows/Linux**.
 
-| Atajo | Acción |
-|-------|--------|
-| `⌘ / Ctrl` + `E` | Nuevo post-it |
-| `⌘ / Ctrl` + `↵` | Nueva hoja |
-| `←` / `→` | Hoja anterior / siguiente |
-| `⌘ / Ctrl` + `J` | Panel de notas |
-| `⌘ / Ctrl` + `K` | Índice de hojas |
-| `⌘ / Ctrl` + `G` | Stickers |
-| `?` | Ver todos los atajos |
+| Atajo            | Acción                    |
+| ---------------- | ------------------------- |
+| `⌘ / Ctrl` + `E` | Nuevo post-it             |
+| `⌘ / Ctrl` + `↵` | Nueva hoja                |
+| `←` / `→`        | Hoja anterior / siguiente |
+| `⌘ / Ctrl` + `J` | Panel de notas            |
+| `⌘ / Ctrl` + `K` | Índice de hojas           |
+| `⌘ / Ctrl` + `G` | Stickers                  |
+| `?`              | Ver todos los atajos      |
 
 > 💡 El botón ⌨️ de la barra superior abre esta misma lista.
 
@@ -112,12 +117,12 @@ pnpm dev
 
 ### Scripts disponibles
 
-| Comando | Descripción |
-|---------|-------------|
-| `pnpm dev` | Servidor de desarrollo con HMR |
-| `pnpm build` | Comprueba tipos y genera el build de producción |
-| `pnpm preview` | Sirve el build de producción localmente |
-| `pnpm lint` | Analiza el código con Oxlint |
+| Comando        | Descripción                                     |
+| -------------- | ----------------------------------------------- |
+| `pnpm dev`     | Servidor de desarrollo con HMR                  |
+| `pnpm build`   | Comprueba tipos y genera el build de producción |
+| `pnpm preview` | Sirve el build de producción localmente         |
+| `pnpm lint`    | Analiza el código con Oxlint                    |
 
 ## 🗂️ Estructura
 
@@ -137,8 +142,7 @@ src/
 └── styles/         # Tokens de diseño y estilos globales
 ```
 
-La arquitectura sigue las convenciones de módulos del proyecto de referencia
-`vooster-app` (ver `FRONTEND_CONVENTIONS.md`). El transporte (Supabase) se mantiene
+La arquitectura sigue las convenciones de módulos de proyectos de referencia. El transporte (Supabase) se mantiene
 fuera de las vistas: el flujo es `services → hooks → store → view`.
 
 ---
