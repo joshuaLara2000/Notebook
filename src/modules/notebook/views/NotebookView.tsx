@@ -12,6 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import { RichToolbar } from "@/shared/ui/RichToolbar";
 import type { NotebookStyle } from "@/shared/types/board";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
@@ -108,6 +109,18 @@ export function NotebookView() {
     addPage();
   };
 
+  // Estado de los extremos para deshabilitar controles.
+  const atFirst = currentIndex <= 0;
+  const atLast = currentIndex >= pageIds.length - 1;
+  const onlyOnePage = pageIds.length <= 1;
+
+  // Atajos: nueva hoja (⌘⏎) y navegar entre hojas (←/→, fuera de edición).
+  useHotkeys([
+    { combo: "mod+enter", handler: handleAddPage, allowInInput: true },
+    { combo: "arrowleft", handler: () => flip("prev") },
+    { combo: "arrowright", handler: () => flip("next") },
+  ]);
+
   return (
     <section className="flex flex-col items-center gap-3">
       <div className="relative">
@@ -131,7 +144,9 @@ export function NotebookView() {
           size="icon"
           className="rounded-full"
           onClick={() => flip("prev")}
+          disabled={atFirst}
           aria-label="Página anterior"
+          title="Hoja anterior (←)"
         >
           <ChevronLeft className="size-4" />
         </Button>
@@ -144,7 +159,9 @@ export function NotebookView() {
           size="icon"
           className="rounded-full"
           onClick={() => flip("next")}
+          disabled={atLast}
           aria-label="Página siguiente"
+          title="Hoja siguiente (→)"
         >
           <ChevronRight className="size-4" />
         </Button>
@@ -153,6 +170,7 @@ export function NotebookView() {
           size="sm"
           className="ml-1 gap-1 rounded-full"
           onClick={handleAddPage}
+          title={`Nueva hoja (${MOD_LABEL}⏎)`}
         >
           <Plus className="size-4" /> Hoja
         </Button>
@@ -181,8 +199,13 @@ export function NotebookView() {
             size="icon"
             className="text-ink/50 hover:text-destructive rounded-full"
             onClick={() => setConfirmingDelete(true)}
+            disabled={onlyOnePage}
             aria-label="Eliminar hoja actual"
-            title="Eliminar hoja actual"
+            title={
+              onlyOnePage
+                ? "No puedes eliminar la única hoja"
+                : "Eliminar hoja actual"
+            }
           >
             <Trash2 className="size-4" />
           </Button>
