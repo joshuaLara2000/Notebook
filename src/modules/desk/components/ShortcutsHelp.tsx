@@ -37,9 +37,14 @@ function Key({ children }: { children: string }) {
 export function ShortcutsHelp() {
   const [open, setOpen] = useState(false);
 
-  // Abrir/cerrar con "?" (convención habitual). Fuera de campos de texto para
-  // no interferir al escribir "?".
-  useHotkeys([{ combo: "?", handler: () => setOpen((o) => !o) }]);
+  // Abrir/cerrar con "?" (convención habitual). Se detecta por carácter y por
+  // tecla física (Shift+Slash) para funcionar en cualquier layout de teclado.
+  // Fuera de campos de texto para no interferir al escribir "?".
+  const toggle = () => setOpen((o) => !o);
+  useHotkeys([
+    { combo: "?", handler: toggle },
+    { combo: "shift+slash", handler: toggle },
+  ]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

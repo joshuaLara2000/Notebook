@@ -19,6 +19,9 @@ function isEditable(target: EventTarget | null): boolean {
   );
 }
 
+// Tokens que apuntan a la tecla física (e.code), independiente del layout.
+const CODE_TOKENS: Record<string, string> = { slash: "Slash" };
+
 /** Compara un combo declarativo contra el evento de teclado. */
 function matches(combo: string, e: KeyboardEvent): boolean {
   const parts = combo.toLowerCase().split("+");
@@ -33,6 +36,8 @@ function matches(combo: string, e: KeyboardEvent): boolean {
   // se teclea con Shift— sigue funcionando).
   if (wantShift && !e.shiftKey) return false;
   if (wantAlt && !e.altKey) return false;
+  // Por tecla física (robusto entre layouts) o por carácter tecleado.
+  if (CODE_TOKENS[key]) return e.code === CODE_TOKENS[key];
   return e.key.toLowerCase() === key;
 }
 
