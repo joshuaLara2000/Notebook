@@ -1,6 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import HTMLFlipBook from "react-pageflip";
-import type { PageFlipMethods } from "react-pageflip";
 import { useShallow } from "zustand/react/shallow";
 import {
   AlignJustify,
@@ -18,6 +16,7 @@ import { RichToolbar } from "@/shared/ui/RichToolbar";
 import type { NotebookStyle } from "@/shared/types/board";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 import { StickerLayer } from "@/modules/stickers/views/StickerLayer";
+import { FlipBook, type FlipBookHandle } from "../components/FlipBook";
 import { NotebookPageSheet } from "../components/NotebookPageSheet";
 import { NotebookIndex } from "../components/NotebookIndex";
 
@@ -54,9 +53,9 @@ export function NotebookView() {
     if (pageIds[0]) setCurrentPage(pageIds[0]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const handleFlip = (e: { data: number }) => {
-    setCurrentIndex(e.data);
-    const id = pageIds[e.data];
+  const handleFlip = (index: number) => {
+    setCurrentIndex(index);
+    const id = pageIds[index];
     if (id) setCurrentPage(id);
   };
 
@@ -77,43 +76,30 @@ export function NotebookView() {
     setNotebookSize(bookWidth, bookHeight);
   }, [bookWidth, bookHeight, setNotebookSize]);
 
-  const bookRef = useRef<{ pageFlip: () => PageFlipMethods } | null>(null);
-  const api = () => bookRef.current?.pageFlip();
+  const bookRef = useRef<FlipBookHandle | null>(null);
+  const api = () => bookRef.current;
 
-  // Forward flip animates (flipNext works); backward flip is broken in
-  // react-pageflip's portrait mode, so "prev" uses the instant turnToPrevPage.
+  // Volteo 3D propio: anima en ambos sentidos.
   const flip = (dir: "next" | "prev") => {
     const a = api();
     if (!a) return;
-    dir === "next" ? a.flipNext() : a.turnToPrevPage();
+    dir === "next" ? a.flipNext() : a.flipPrev();
   };
-  const goToPage = (index: number) => {
-    api()?.turnToPage(index);
-    setCurrentIndex(index);
-    const id = pageIds[index];
-    if (id) setCurrentPage(id);
-  };
+  const goToPage = (index: number) => api()?.goTo(index);
 
   const deleteCurrentPage = () => {
-    const index = api()?.getCurrentPageIndex() ?? 0;
+    const index = api()?.getIndex() ?? 0;
     const id = pageIds[index];
     if (id) removePage(id);
     setConfirmingDelete(false);
   };
 
-  // Al agregar hoja el flip-book se remonta (reset a la 1ª); saltamos a la nueva.
+  // Al agregar hoja, salta (animando) a la nueva última hoja.
   const jumpToLastRef = useRef(false);
   useEffect(() => {
     if (!jumpToLastRef.current) return;
     jumpToLastRef.current = false;
-    const last = pageIds.length - 1;
-    const t = setTimeout(() => {
-      api()?.turnToPage(last);
-      setCurrentIndex(last);
-      const id = pageIds[last];
-      if (id) setCurrentPage(id);
-    }, 60);
-    return () => clearTimeout(t);
+    api()?.goTo(pageIds.length - 1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageIds]);
 
@@ -124,28 +110,15 @@ export function NotebookView() {
 
   return (
     <section className="flex flex-col items-center gap-3">
-      <div className="relative drop-shadow-[0_18px_30px_rgba(0,0,0,.28)]">
-        <HTMLFlipBook
-          key={`${bookWidth}x${bookHeight}:${pageIds.join(",")}`}
+      <div className="relative">
+        <FlipBook
           ref={bookRef}
+          pageIds={pageIds}
+          renderPage={(id) => <NotebookPageSheet pageId={id} />}
           width={bookWidth}
           height={bookHeight}
-          size="fixed"
-          showCover={false}
-          usePortrait
-          mobileScrollSupport={false}
-          flippingTime={800}
-          maxShadowOpacity={0.6}
-          showPageCorners
-          drawShadow
-          disableFlipByClick
           onFlip={handleFlip}
-          className="notebook-book"
-        >
-          {pageIds.map((id) => (
-            <NotebookPageSheet key={id} pageId={id} />
-          ))}
-        </HTMLFlipBook>
+        />
 
         {/* stickers de la hoja actual, encima de la libreta y recortados a ella */}
         <StickerLayer />
