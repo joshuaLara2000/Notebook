@@ -41,6 +41,8 @@ interface BoardState {
   notebookStyle: NotebookStyle;
   /** id of the notebook page currently shown — scopes which stickers render */
   currentPageId: string;
+  /** tamaño en px de la libreta, para acotar los stickers a su área */
+  notebookSize: { w: number; h: number };
   topZ: number;
 
   // post-its
@@ -58,7 +60,8 @@ interface BoardState {
   removePostIt: (id: string) => void;
 
   // stickers
-  addSticker: (kind: string, x: number, y: number) => void;
+  /** coloca un sticker en la hoja actual, dentro del área de la libreta */
+  addSticker: (kind: string) => void;
   moveSticker: (id: string, x: number, y: number) => void;
   resizeSticker: (id: string, scale: number) => void;
   removeSticker: (id: string) => void;
@@ -69,6 +72,7 @@ interface BoardState {
   removePage: (id: string) => void;
   setNotebookStyle: (style: NotebookStyle) => void;
   setCurrentPage: (id: string) => void;
+  setNotebookSize: (w: number, h: number) => void;
 
   // sync
   /** Reemplaza el tablero con datos remotos (al iniciar sesión). */
@@ -92,6 +96,7 @@ export const useBoardStore = create<BoardState>()(
       pages: [initialPage],
       notebookStyle: "ruled",
       currentPageId: initialPage.id,
+      notebookSize: { w: 400, h: 520 },
       topZ: 1,
 
       addPostIt: (color) =>
@@ -182,15 +187,18 @@ export const useBoardStore = create<BoardState>()(
       removePostIt: (id) =>
         set((s) => ({ postits: s.postits.filter((p) => p.id !== id) })),
 
-      addSticker: (kind, x, y) =>
+      addSticker: (kind) =>
         set((s) => {
           const z = s.topZ + 1;
+          // coloca en un punto aleatorio dentro del área de la libreta
+          const bw = s.notebookSize.w || 400;
+          const bh = s.notebookSize.h || 520;
           const sticker: StickerInstance = {
             id: uid(),
             kind,
             pageId: s.currentPageId,
-            x,
-            y,
+            x: Math.round(bw * 0.2 + Math.random() * bw * 0.4),
+            y: Math.round(bh * 0.15 + Math.random() * bh * 0.45),
             rotation: Math.random() * 12 - 6,
             scale: 1,
             zIndex: z,
@@ -199,11 +207,18 @@ export const useBoardStore = create<BoardState>()(
         }),
 
       moveSticker: (id, x, y) =>
-        set((s) => ({
-          stickers: s.stickers.map((st) =>
-            st.id === id ? { ...st, x, y } : st
-          ),
-        })),
+        set((s) => {
+          // acota el sticker dentro de los límites de la libreta
+          const maxX = Math.max(0, s.notebookSize.w - 80);
+          const maxY = Math.max(0, s.notebookSize.h - 80);
+          const cx = Math.min(Math.max(0, x), maxX);
+          const cy = Math.min(Math.max(0, y), maxY);
+          return {
+            stickers: s.stickers.map((st) =>
+              st.id === id ? { ...st, x: cx, y: cy } : st
+            ),
+          };
+        }),
 
       resizeSticker: (id, scale) =>
         set((s) => ({
@@ -235,6 +250,8 @@ export const useBoardStore = create<BoardState>()(
       setNotebookStyle: (style) => set({ notebookStyle: style }),
 
       setCurrentPage: (id) => set({ currentPageId: id }),
+
+      setNotebookSize: (w, h) => set({ notebookSize: { w, h } }),
 
       hydrate: (data) =>
         set(() => {

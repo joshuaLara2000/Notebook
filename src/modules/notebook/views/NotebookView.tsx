@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { RichToolbar } from "@/shared/ui/RichToolbar";
 import type { NotebookStyle } from "@/shared/types/board";
 import { useBoardStore } from "@/modules/desk/store/useBoardStore";
+import { StickerLayer } from "@/modules/stickers/views/StickerLayer";
 import { NotebookPageSheet } from "../components/NotebookPageSheet";
 import { NotebookIndex } from "../components/NotebookIndex";
 
@@ -43,6 +44,7 @@ export function NotebookView() {
   const notebookStyle = useBoardStore((s) => s.notebookStyle);
   const setNotebookStyle = useBoardStore((s) => s.setNotebookStyle);
   const setCurrentPage = useBoardStore((s) => s.setCurrentPage);
+  const setNotebookSize = useBoardStore((s) => s.setNotebookSize);
 
   // Índice de la hoja visible, para mostrar "actual/total" en el navegador.
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -70,6 +72,11 @@ export function NotebookView() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
+  // reporta el tamaño de la libreta para acotar los stickers a su área
+  useEffect(() => {
+    setNotebookSize(bookWidth, bookHeight);
+  }, [bookWidth, bookHeight, setNotebookSize]);
+
   const bookRef = useRef<{ pageFlip: () => PageFlipMethods } | null>(null);
   const api = () => bookRef.current?.pageFlip();
 
@@ -94,9 +101,30 @@ export function NotebookView() {
     setConfirmingDelete(false);
   };
 
+  // Al agregar hoja el flip-book se remonta (reset a la 1ª); saltamos a la nueva.
+  const jumpToLastRef = useRef(false);
+  useEffect(() => {
+    if (!jumpToLastRef.current) return;
+    jumpToLastRef.current = false;
+    const last = pageIds.length - 1;
+    const t = setTimeout(() => {
+      api()?.turnToPage(last);
+      setCurrentIndex(last);
+      const id = pageIds[last];
+      if (id) setCurrentPage(id);
+    }, 60);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageIds]);
+
+  const handleAddPage = () => {
+    jumpToLastRef.current = true;
+    addPage();
+  };
+
   return (
     <section className="flex flex-col items-center gap-3">
-      <div className="drop-shadow-[0_18px_30px_rgba(0,0,0,.28)]">
+      <div className="relative drop-shadow-[0_18px_30px_rgba(0,0,0,.28)]">
         <HTMLFlipBook
           key={`${bookWidth}x${bookHeight}:${pageIds.join(",")}`}
           ref={bookRef}
@@ -118,6 +146,9 @@ export function NotebookView() {
             <NotebookPageSheet key={id} pageId={id} />
           ))}
         </HTMLFlipBook>
+
+        {/* stickers de la hoja actual, encima de la libreta y recortados a ella */}
+        <StickerLayer />
       </div>
 
       {/* navigation */}
@@ -148,7 +179,7 @@ export function NotebookView() {
           variant="outline"
           size="sm"
           className="ml-1 gap-1 rounded-full"
-          onClick={addPage}
+          onClick={handleAddPage}
         >
           <Plus className="size-4" /> Hoja
         </Button>

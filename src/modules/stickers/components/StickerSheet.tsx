@@ -1,4 +1,4 @@
-import { useDraggable } from "@dnd-kit/core";
+import { useState } from "react";
 import { Sticker as StickerIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -10,31 +10,21 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useBoardStore } from "@/modules/desk/store/useBoardStore";
 import { STICKERS } from "../catalog";
 import { StickerBadge } from "./StickerBadge";
 
-function SheetSticker({ kind }: { kind: string }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `new-sticker:${kind}`,
-    data: { type: "new-sticker", kind },
-  });
-  return (
-    <button
-      ref={setNodeRef}
-      className="grid touch-none place-items-center rounded-xl p-2 transition hover:bg-black/5"
-      style={{ opacity: isDragging ? 0.3 : 1 }}
-      {...listeners}
-      {...attributes}
-      aria-label={`Arrastrar sticker ${kind}`}
-    >
-      <StickerBadge kind={kind} size={68} />
-    </button>
-  );
-}
-
 export function StickerSheet() {
+  const [open, setOpen] = useState(false);
+  const addSticker = useBoardStore((s) => s.addSticker);
+
+  const place = (kind: string) => {
+    addSticker(kind);
+    setOpen(false); // cierra para ver el sticker caer en la hoja
+  };
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" className="gap-2 rounded-full shadow-sm">
           <StickerIcon className="size-4" /> Stickers
@@ -44,12 +34,20 @@ export function StickerSheet() {
         <SheetHeader>
           <SheetTitle className="text-2xl font-bold">Stickers</SheetTitle>
           <SheetDescription>
-            Arrastra un sticker hacia la libreta o el tablero.
+            Toca uno para pegarlo en la hoja actual de la libreta.
           </SheetDescription>
         </SheetHeader>
         <div className="grid grid-cols-3 gap-2 overflow-y-auto px-4 pb-6">
           {STICKERS.map((s) => (
-            <SheetSticker key={s.kind} kind={s.kind} />
+            <button
+              key={s.kind}
+              type="button"
+              onClick={() => place(s.kind)}
+              className="grid place-items-center rounded-xl p-2 transition hover:bg-black/5"
+              aria-label={`Pegar sticker ${s.label}`}
+            >
+              <StickerBadge kind={s.kind} size={68} />
+            </button>
           ))}
         </div>
       </SheetContent>

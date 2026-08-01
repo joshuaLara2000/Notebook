@@ -14,7 +14,6 @@ import { PostItWall } from "@/modules/postits/views/PostItWall";
 import { NotesSheet } from "@/modules/postits/components/NotesSheet";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
-import { StickerLayer } from "@/modules/stickers/views/StickerLayer";
 import { DateBadge } from "../components/DateBadge";
 import { AccountMenu } from "../components/AccountMenu";
 import { useBoardStore } from "../store/useBoardStore";
@@ -33,17 +32,6 @@ export function Desk() {
     const { active, delta } = event;
     const type = active.data.current?.type as string | undefined;
     const store = useBoardStore.getState();
-
-    if (type === "new-sticker") {
-      const kind = active.data.current?.kind as string;
-      const deskRect = deskRef.current?.getBoundingClientRect();
-      const translated = active.rect.current.translated;
-      if (!deskRect || !translated) return;
-      const x = translated.left - deskRect.left;
-      const y = translated.top - deskRect.top;
-      store.addSticker(kind, x, y);
-      return;
-    }
 
     if (type === "placed-sticker") {
       const s = store.stickers.find((it) => it.id === active.id);
@@ -94,9 +82,6 @@ export function Desk() {
 
         {/* post-its float freely over the whole desk (including the notebook) */}
         <PostItWall />
-
-        {/* stickers placed on the board float above everything */}
-        <StickerLayer />
       </div>
     </DndContext>
   );
