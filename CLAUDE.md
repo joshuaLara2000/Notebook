@@ -19,5 +19,7 @@ this is a Vite SPA, so there is no Next `src/app` route layer.
 
 - TypeScript everywhere; avoid `any`.
 - Feature code consumes design tokens from `src/styles/globals.css` — never raw hex.
+  See "Theming & design tokens" in `FRONTEND_CONVENTIONS.md` for the layering,
+  primitive vs semantic tokens, how to add one, and the dark-mode pattern.
 - Keep transport (Supabase) out of views; go through `services → hooks → store → view`.
 - Import with the `@/` alias.

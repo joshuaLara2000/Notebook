@@ -21,7 +21,7 @@ export function InsightsRow({ insights }: { insights: Insight[] }) {
             target="_blank"
             rel="noreferrer"
             onPointerDown={(e) => e.stopPropagation()}
-            className="bg-black/5 text-ink/80 hover:bg-black/10 flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 text-xs transition"
+            className="bg-black/5 text-postit-ink/80 hover:bg-black/10 flex max-w-full items-center gap-1 rounded-full px-2 py-0.5 text-xs transition"
             title={insight.label}
           >
             <Icon className="size-3 shrink-0" />

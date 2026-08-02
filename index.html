@@ -13,6 +13,18 @@
       rel="stylesheet"
     />
     <title>Mi libreta</title>
+    <!-- Aplica el tema antes de pintar para evitar parpadeo de color -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem("nb-theme");
+          var dark =
+            t === "dark" ||
+            (!t && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

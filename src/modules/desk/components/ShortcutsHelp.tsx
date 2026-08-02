@@ -21,6 +21,7 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: [MOD_LABEL, "J"], label: "Panel de notas" },
   { keys: [MOD_LABEL, "K"], label: "Índice de hojas" },
   { keys: [MOD_LABEL, "G"], label: "Stickers" },
+  { keys: [MOD_LABEL, "⇧", "D"], label: "Modo claro / oscuro" },
   { keys: ["?"], label: "Ver estos atajos" },
 ];
 

@@ -22,6 +22,12 @@
   /* Ink — soft plum-grey instead of hard black */
   --ink: #4a4458;
   --ink-soft: #8a83a0;
+  /* Tinta sobre post-its: siempre oscura (el post-it es un objeto claro,
+     incluso de noche), independiente del tema. */
+  --postit-ink: #4a4458;
+
+  /* Color de la textura de puntos del escritorio */
+  --desk-dot: rgba(131, 104, 209, 0.06);
 
   /* Post-it palette — pastel/candy version of the reference */
   --postit-yellow: #fdf0a8;
@@ -57,6 +63,63 @@
   --ring: var(--accent-cal);
 }
 
+/*
+ * Dark mode — "kawaii nocturno": escritorio índigo/ciruela (nunca negro puro),
+ * papel oscuro cálido, pasteles conservados pero apagados, morado luminoso como
+ * acento. Como escribir de noche con una lámpara suave.
+ */
+.dark {
+  /* Superficies */
+  --desk: #1b1730;           /* índigo noche */
+  --desk-2: #241f3a;
+  --paper: #262138;          /* cartulina oscura cálida */
+  --paper-line: #38324e;     /* renglón tenue */
+  --paper-margin: #7d4a66;   /* margen rosado apagado */
+
+  /* Tinta clara sobre superficies oscuras (página, chrome) */
+  --ink: #e9e4f6;
+  --ink-soft: #a79fc4;
+  /* Post-it sigue siendo claro, así que su tinta se queda oscura */
+  --postit-ink: #33304a;
+
+  /* Post-its: notas de papel con luz tenue de noche — más apagados y terrosos
+     que de día, pero aún claros para que la tinta oscura se lea bien. */
+  --postit-yellow: #cdbe73;
+  --postit-pink: #d6a3bd;
+  --postit-orange: #d7a985;
+  --postit-cyan: #93b9c9;
+  --postit-green: #a3c19c;
+  --postit-blue: #a5add4;
+
+  /* Acentos: morado luminoso con brillo sutil */
+  --accent-cal: #a78bfa;
+  --blush: #f0a6c6;
+  --urgent: #cf87b0;
+
+  /* Textura de puntos, apenas visible sobre el índigo */
+  --desk-dot: rgba(199, 180, 255, 0.05);
+
+  /* Tokens semánticos shadcn */
+  --background: var(--desk);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--accent-cal);
+  --primary-foreground: #1c1730;   /* texto oscuro sobre el morado luminoso */
+  --secondary: var(--desk-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--desk-2);
+  --muted-foreground: var(--ink-soft);
+  --accent: var(--desk-2);
+  --accent-foreground: var(--ink);
+  --destructive: #f0808a;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.16);
+  --ring: var(--accent-cal);
+}
+
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -88,6 +151,7 @@
   --color-paper-margin: var(--paper-margin);
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
+  --color-postit-ink: var(--postit-ink);
   --color-postit-yellow: var(--postit-yellow);
   --color-postit-pink: var(--postit-pink);
   --color-postit-orange: var(--postit-orange);
@@ -154,8 +218,10 @@
     @apply bg-background text-foreground;
     font-family: var(--font-round);
     /* subtle lavender desk texture */
-    background-image:
-      radial-gradient(rgba(131, 104, 209, 0.06) 1.5px, transparent 1.5px);
+    background-image: radial-gradient(
+      var(--desk-dot) 1.5px,
+      transparent 1.5px
+    );
     background-size: 24px 24px;
     -webkit-font-smoothing: antialiased;
   }
