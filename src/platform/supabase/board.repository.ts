@@ -47,12 +47,21 @@ interface StickerRow {
   z_index: number;
 }
 
+// convierte un instante ISO al día calendario LOCAL (YYYY-MM-DD); evita que la
+// noche en zonas UTC- guarde la fecha del día siguiente por rebanar el UTC.
+const toLocalYMD = (iso: string): string => {
+  const d = new Date(iso);
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${month}-${day}`;
+};
+
 // ---- dominio -> fila (agrega user_id para pasar RLS) ----
 const toPageRow = (p: NotebookPage, userId: string) => ({
   id: p.id,
   user_id: userId,
   page_index: p.index,
-  date: p.date ? p.date.slice(0, 10) : null,
+  date: p.date ? toLocalYMD(p.date) : null,
   content: p.content,
   urgent: p.urgent,
 });
