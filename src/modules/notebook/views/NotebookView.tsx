@@ -48,6 +48,8 @@ export function NotebookView() {
 
   // Índice de la hoja visible, para mostrar "actual/total" en el navegador.
   const [currentIndex, setCurrentIndex] = useState(0);
+  // Verdadero mientras una hoja gira; atenúa los stickers durante el volteo.
+  const [isFlipping, setIsFlipping] = useState(false);
 
   // Keep the store's "current page" in sync so stickers scope to this page.
   useEffect(() => {
@@ -58,6 +60,8 @@ export function NotebookView() {
     setCurrentIndex(index);
     const id = pageIds[index];
     if (id) setCurrentPage(id);
+    // el volteo terminó: reaparecen los stickers de la nueva hoja
+    setIsFlipping(false);
   };
 
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -131,10 +135,11 @@ export function NotebookView() {
           width={bookWidth}
           height={bookHeight}
           onFlip={handleFlip}
+          onFlipStart={() => setIsFlipping(true)}
         />
 
         {/* stickers de la hoja actual, encima de la libreta y recortados a ella */}
-        <StickerLayer />
+        <StickerLayer hidden={isFlipping} />
       </div>
 
       {/* navigation */}

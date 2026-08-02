@@ -23,6 +23,8 @@ interface FlipBookProps {
   width: number;
   height: number;
   onFlip?: (index: number) => void;
+  /** Se dispara al iniciar un volteo (antes de la animación). */
+  onFlipStart?: () => void;
 }
 
 const DURATION = 550; // ms; debe coincidir con la animación CSS
@@ -35,7 +37,7 @@ const PAGE_CLASS =
  * al regresar (solo cambia la hoja destino). Reemplaza a react-pageflip.
  */
 export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(
-  ({ pageIds, renderPage, width, height, onFlip }, ref) => {
+  ({ pageIds, renderPage, width, height, onFlip, onFlipStart }, ref) => {
     const [shown, setShown] = useState(0);
     const [anim, setAnim] = useState<{ dir: "next" | "prev"; to: number } | null>(
       null
@@ -43,6 +45,8 @@ export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(
 
     const onFlipRef = useRef(onFlip);
     onFlipRef.current = onFlip;
+    const onFlipStartRef = useRef(onFlipStart);
+    onFlipStartRef.current = onFlipStart;
     // guarda para no confirmar dos veces (animationend + timeout de respaldo)
     const animRef = useRef(anim);
     animRef.current = anim;
@@ -82,17 +86,26 @@ export const FlipBook = forwardRef<FlipBookHandle, FlipBookProps>(
       ref,
       () => ({
         flipNext: () => {
-          if (!anim && shown < pageIds.length - 1)
+          if (!anim && shown < pageIds.length - 1) {
+            onFlipStartRef.current?.();
             setAnim({ dir: "next", to: shown + 1 });
+          }
         },
         flipPrev: () => {
-          if (!anim && shown > 0) setAnim({ dir: "prev", to: shown - 1 });
+          if (!anim && shown > 0) {
+            onFlipStartRef.current?.();
+            setAnim({ dir: "prev", to: shown - 1 });
+          }
         },
         goTo: (i) => {
           if (anim || i === shown || i < 0 || i > pageIds.length - 1) return;
-          if (i === shown + 1) setAnim({ dir: "next", to: i });
-          else if (i === shown - 1) setAnim({ dir: "prev", to: i });
-          else commit(i); // salto no adyacente: instantáneo
+          if (i === shown + 1) {
+            onFlipStartRef.current?.();
+            setAnim({ dir: "next", to: i });
+          } else if (i === shown - 1) {
+            onFlipStartRef.current?.();
+            setAnim({ dir: "prev", to: i });
+          } else commit(i); // salto no adyacente: instantáneo
         },
         getIndex: () => shown,
       }),
