@@ -41,3 +41,51 @@ Entry is `src/main.tsx` → `App.tsx` → `modules/desk`.
 - Reuse `components/ui` and module components before adding abstractions.
 - Icon-only buttons need `aria-label`; keep focus visible; respect `prefers-reduced-motion`.
 - Apply the `notebook-ui` design skill for substantial UI work.
+
+## Theming & design tokens
+
+All color/radius/font values live as CSS variables (design tokens) in
+`src/styles/globals.css`. Components consume tokens; they never know the raw
+value. This is why light/dark and future re-skins touch one file, not the tree.
+
+### The four layers
+
+1. **Raw value** — the hex lives here, once, in `:root`:
+   ```css
+   :root { --postit-ink: #4a4458; }
+   ```
+2. **Theme override** — same name, different value under `.dark` (dark mode is
+   just re-pointing names; do not edit components for it):
+   ```css
+   .dark { --postit-ink: #33304a; }
+   ```
+3. **Expose to Tailwind** — register it in `@theme inline` so a utility exists:
+   ```css
+   @theme inline { --color-postit-ink: var(--postit-ink); }
+   ```
+4. **Use in components** — the utility, never the hex:
+   ```tsx
+   <div className="text-postit-ink">…</div>
+   ```
+
+### Primitive vs semantic tokens
+
+- **Primitive / brand**: the raw color — `--ink`, `--postit-yellow`, `--accent-cal`.
+- **Semantic**: describes a *role*, points at a primitive — `--background`,
+  `--card`, `--primary`, `--border` (e.g. `--primary: var(--accent-cal)`).
+- Prefer semantic tokens in components (`bg-primary`, not `bg-accent-cal`) so a
+  role can be re-colored in one line.
+
+### Adding a token
+
+Add the raw value to `:root`, an override to `.dark` if it differs by theme, and
+the `--color-*` line in `@theme inline`. Then use the utility. Example: post-its
+stay light even at night, so their text needs ink that is always dark — hence a
+dedicated `--postit-ink` (dark in both themes) instead of reusing `--ink` (which
+flips to light in dark mode).
+
+### Dark mode plumbing
+
+`.dark` on `<html>` activates the overrides. The class is set before paint by an
+inline script in `index.html` (respects saved choice, falls back to system
+preference) and toggled at runtime by `shared/theme/useThemeStore.ts`.
