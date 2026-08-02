@@ -124,7 +124,7 @@ export function PostItCard({
           type="button"
           onPointerDown={stop}
           onClick={onArchive}
-          className="absolute right-1 top-1 rounded p-0.5 text-ink/40 opacity-0 transition hover:bg-black/10 hover:text-ink group-hover:opacity-100"
+          className="absolute right-1 top-1 rounded p-0.5 text-postit-ink/40 opacity-0 transition hover:bg-black/10 hover:text-postit-ink group-hover:opacity-100"
           aria-label="Quitar del tablero (se guarda en la lista)"
           title="Quitar del tablero"
         >
@@ -146,7 +146,7 @@ export function PostItCard({
               if (v) onFocus();
             }}
             placeholder="Escribe…"
-            className="font-hand text-ink h-full text-lg leading-tight"
+            className="font-hand text-postit-ink h-full text-lg leading-tight"
           />
         </div>
 

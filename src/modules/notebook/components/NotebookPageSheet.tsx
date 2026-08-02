@@ -68,7 +68,7 @@ export const NotebookPageSheet = forwardRef<
           {Array.from({ length: 14 }).map((_, i) => (
             <span
               key={i}
-              className="block h-1.5 w-4 rounded-full bg-black/15"
+              className="block h-1.5 w-4 rounded-full bg-ink/25"
             />
           ))}
         </div>

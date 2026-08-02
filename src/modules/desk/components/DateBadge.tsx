@@ -19,10 +19,10 @@ export function DateBadge() {
         <span className="text-[0.55rem] opacity-80">{year}</span>
       </div>
       <div className="flex flex-col items-center px-2 pb-2 pt-1">
-        <span className="text-ink text-4xl font-extrabold leading-none">
+        <span className="text-postit-ink text-4xl font-extrabold leading-none">
           {day}
         </span>
-        <span className="text-ink-soft mt-1 text-[0.6rem] tracking-wide">
+        <span className="text-postit-ink/60 mt-1 text-[0.6rem] tracking-wide">
           {weekday}
         </span>
       </div>

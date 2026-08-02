@@ -18,6 +18,7 @@ import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
 import { DateBadge } from "../components/DateBadge";
 import { AccountMenu } from "../components/AccountMenu";
 import { ShortcutsHelp } from "../components/ShortcutsHelp";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { useBoardStore } from "../store/useBoardStore";
 import { useBoardSync } from "../hooks/useBoardSync";
 
@@ -73,6 +74,7 @@ export function Desk() {
             </Button>
             <NotesSheet />
             <StickerSheet />
+            <ThemeToggle />
             <ShortcutsHelp />
           </div>
 
