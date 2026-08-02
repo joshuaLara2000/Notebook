@@ -96,7 +96,7 @@ export function RichTextArea({
         className="rich-note h-full w-full overflow-y-auto px-3 pb-2 outline-none"
       />
       {empty && placeholder && (
-        <span className="text-ink/30 pointer-events-none absolute left-3 top-0 select-none">
+        <span className="pointer-events-none absolute left-3 top-0 select-none opacity-40">
           {placeholder}
         </span>
       )}

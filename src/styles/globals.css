@@ -82,13 +82,14 @@
   /* Post-it sigue siendo claro, así que su tinta se queda oscura */
   --postit-ink: #33304a;
 
-  /* Post-its: mismos matices, un punto más apagados para no deslumbrar */
-  --postit-yellow: #e6d78f;
-  --postit-pink: #edbcd4;
-  --postit-orange: #eec1a0;
-  --postit-cyan: #aed3e2;
-  --postit-green: #bcd8b6;
-  --postit-blue: #bcc4ec;
+  /* Post-its: notas de papel con luz tenue de noche — más apagados y terrosos
+     que de día, pero aún claros para que la tinta oscura se lea bien. */
+  --postit-yellow: #cdbe73;
+  --postit-pink: #d6a3bd;
+  --postit-orange: #d7a985;
+  --postit-cyan: #93b9c9;
+  --postit-green: #a3c19c;
+  --postit-blue: #a5add4;
 
   /* Acentos: morado luminoso con brillo sutil */
   --accent-cal: #a78bfa;
