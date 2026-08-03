@@ -11,6 +11,7 @@ import { RichTextArea } from "@/shared/ui/RichTextArea";
 import { RichToolbar } from "@/shared/ui/RichToolbar";
 import { detectInsights } from "../lib/insights";
 import { InsightsRow } from "./InsightsRow";
+import { NoteMarkedView } from "./NoteMarkedView";
 
 const MIN_W = 150;
 const MIN_H = 140;
@@ -33,6 +34,7 @@ export function PostItCard({
   onResize,
 }: PostItCardProps) {
   const [editing, setEditing] = useState(false);
+  const [autoFocus, setAutoFocus] = useState(false);
   const [live, setLive] = useState<{ w: number; h: number } | null>(null);
   const liveRef = useRef<{ w: number; h: number } | null>(null);
   const style = POSTIT_STYLES[postit.color];
@@ -44,6 +46,21 @@ export function PostItCard({
     () => detectInsights(htmlToPlainText(postit.text)),
     [postit.text]
   );
+  const hasText = useMemo(
+    () => htmlToPlainText(postit.text).length > 0,
+    [postit.text]
+  );
+
+  // Show the marker/read view while idle (dates become clickable there); swap to
+  // the editor when the note is focused or still empty (so the placeholder and
+  // first click work). Entering edit from the read view auto-focuses the caret.
+  const showEditor = editing || !hasText;
+
+  const enterEdit = () => {
+    setAutoFocus(true);
+    setEditing(true);
+    onFocus();
+  };
 
   function handleResizeStart(e: React.PointerEvent) {
     e.preventDefault();
@@ -138,16 +155,26 @@ export function PostItCard({
           work as drag handles.
         */}
         <div className="min-h-0 flex-1" onPointerDown={stop}>
-          <RichTextArea
-            html={postit.text}
-            onChange={onChange}
-            onEditingChange={(v) => {
-              setEditing(v);
-              if (v) onFocus();
-            }}
-            placeholder="Escribe…"
-            className="font-hand text-postit-ink h-full text-lg leading-tight"
-          />
+          {showEditor ? (
+            <RichTextArea
+              html={postit.text}
+              onChange={onChange}
+              onEditingChange={(v) => {
+                setEditing(v);
+                if (v) onFocus();
+                else setAutoFocus(false);
+              }}
+              autoFocus={autoFocus}
+              placeholder="Escribe…"
+              className="font-hand text-postit-ink h-full text-lg leading-tight"
+            />
+          ) : (
+            <NoteMarkedView
+              html={postit.text}
+              onEdit={enterEdit}
+              className="font-hand text-postit-ink text-lg leading-tight"
+            />
+          )}
         </div>
 
         {/* bottom: formatting while editing, actionable insights otherwise */}

@@ -29,6 +29,10 @@
   /* Color de la textura de puntos del escritorio */
   --desk-dot: rgba(131, 104, 209, 0.06);
 
+  /* Marcador (highlighter) para fechas agendables dentro de un post-it.
+     Translúcido cálido para que se lea sobre cualquier color de post-it. */
+  --postit-marker: rgba(255, 202, 40, 0.5);
+
   /* Post-it palette — pastel/candy version of the reference */
   --postit-yellow: #fdf0a8;
   --postit-pink: #fbd3e4;
@@ -99,6 +103,9 @@
   /* Textura de puntos, apenas visible sobre el índigo */
   --desk-dot: rgba(199, 180, 255, 0.05);
 
+  /* Marcador un punto más luminoso para los post-its apagados de noche */
+  --postit-marker: rgba(255, 214, 90, 0.5);
+
   /* Tokens semánticos shadcn */
   --background: var(--desk);
   --foreground: var(--ink);
@@ -152,6 +159,7 @@
   --color-ink: var(--ink);
   --color-ink-soft: var(--ink-soft);
   --color-postit-ink: var(--postit-ink);
+  --color-postit-marker: var(--postit-marker);
   --color-postit-yellow: var(--postit-yellow);
   --color-postit-pink: var(--postit-pink);
   --color-postit-orange: var(--postit-orange);
@@ -186,6 +194,23 @@
   }
   .rich-note a {
     text-decoration: underline;
+  }
+  /* Fecha agendable resaltada (marcador) — clicable para elegir app de agenda */
+  .nb-date {
+    background-color: var(--color-postit-marker);
+    border-radius: 0.3rem;
+    padding: 0 0.15em;
+    cursor: pointer;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    transition: filter 0.15s ease;
+  }
+  .nb-date:hover {
+    filter: brightness(0.94);
+  }
+  .nb-date:focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 1px;
   }
   /* Notebook paper styles — applied to the page's scrolling editor */
   .paper-ruled .rich-note {

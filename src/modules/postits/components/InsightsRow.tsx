@@ -1,4 +1,4 @@
-import { CalendarPlus, Link2, Mail, Phone } from "lucide-react";
+import { Link2, Mail, Phone } from "lucide-react";
 
 import type { Insight, InsightType } from "../lib/insights";
 
@@ -6,7 +6,6 @@ const ICONS: Record<InsightType, typeof Link2> = {
   link: Link2,
   email: Mail,
   phone: Phone,
-  date: CalendarPlus,
 };
 
 export function InsightsRow({ insights }: { insights: Insight[] }) {
