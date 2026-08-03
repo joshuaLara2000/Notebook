@@ -67,12 +67,11 @@ Archivos: `modules/desk/views/Desk.tsx`, `modules/postits/components/PostItCard.
 
 Archivos: `Desk.tsx`, `NotebookView.tsx`, `PostItWall.tsx`, barra superior.
 
-- [ ] **Libreta**: `computeBookSize()` limita alto por `window.innerHeight`
-      pero el ancho (`height*0.75`) **no** se acota al ancho de viewport →
-      se desborda en teléfono/tablet angosto. Cap: `bookWidth = min(alto*0.75,
-      window.innerWidth - margen)` y derivar el alto del ancho cuando manda el
-      ancho. Verificar que los stickers (que se acotan a `notebookSize`) sigan
-      bien.
+- [x] **Libreta**: `computeBookSize()` ahora acota el ancho a
+      `min(alto*0.75, innerWidth - 32, 700)` y recalcula el alto cuando manda
+      el ancho, así ya no se desborda en tablet/teléfono angosto (desktop
+      queda igual). Pendiente: en teléfono horizontal puede sobrar de alto →
+      lo cubre el layout de teléfono (Fase 3).
 - [ ] **Barra superior** (`Desk.tsx`): hoy son varios botones (cuenta, +Post-it,
       Notas, Stickers, tema, atajos, fecha) en una fila; en tablet vertical se
       aprieta. Colapsar acciones secundarias en un menú (kebab/DropdownMenu) o

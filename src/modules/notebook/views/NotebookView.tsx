@@ -28,11 +28,23 @@ const PAPER_OPTIONS: { value: NotebookStyle; icon: typeof Square; label: string 
     { value: "blank", icon: Square, label: "Blanco" },
   ];
 
+// Proporción retrato de la libreta (ancho / alto).
+const BOOK_RATIO = 0.75;
+
 function computeBookSize() {
   const h = typeof window !== "undefined" ? window.innerHeight : 800;
-  // Larger book on tall screens; reserve room for the top bar and the controls.
-  const height = Math.min(900, Math.max(480, h - 250));
-  return { bookHeight: height, bookWidth: Math.round(height * 0.75) };
+  const w = typeof window !== "undefined" ? window.innerWidth : 1200;
+  // Alto según la pantalla; reserva sitio para la barra superior y controles.
+  let height = Math.min(900, Math.max(480, h - 250));
+  let width = Math.round(height * BOOK_RATIO);
+  // Si no cabe a lo ancho (tablet/teléfono angosto), manda el ancho y
+  // recalculamos el alto para no desbordar la pantalla.
+  const maxWidth = Math.min(w - 32, 700);
+  if (width > maxWidth) {
+    width = Math.max(220, maxWidth);
+    height = Math.round(width / BOOK_RATIO);
+  }
+  return { bookHeight: height, bookWidth: width };
 }
 
 export function NotebookView() {
