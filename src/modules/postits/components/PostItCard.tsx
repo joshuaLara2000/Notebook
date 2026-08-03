@@ -109,7 +109,9 @@ export function PostItCard({
       {...listeners}
       onPointerDown={handleContainerPointerDown}
       className={cn(
-        "group pointer-events-auto absolute select-none",
+        // touch-none: el gesto lo maneja dnd-kit, no el navegador (el área de
+        // texto vuelve a touch-auto para poder hacer scroll/seleccionar).
+        "group pointer-events-auto absolute touch-none select-none",
         editing ? "cursor-default" : isDragging ? "cursor-grabbing" : "cursor-grab"
       )}
       style={{
@@ -154,7 +156,7 @@ export function PostItCard({
           the footer, and the side margins — so both the top and bottom bands
           work as drag handles.
         */}
-        <div className="min-h-0 flex-1" onPointerDown={stop}>
+        <div className="min-h-0 flex-1 touch-auto" onPointerDown={stop}>
           {showEditor ? (
             <RichTextArea
               html={postit.text}

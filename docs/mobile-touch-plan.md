@@ -16,13 +16,17 @@ como en escritorio, sin perder la sensación táctil de papelería.
 - Progresivo y verificable por fases; cada fase se prueba con
   `resize_window` (mobile 375 / tablet 768) sobre el dev server.
 
-## Punto de decisión (definir antes de Fase 3)
+## Decisión tomada — estrategia de teléfono: **A**
 
-**Estrategia de teléfono:** ¿(A) lista/stack de notas + libreta a pantalla
-completa con tab bar, o (B) canvas con pinch-zoom + paneo?
-Recomendación: **(A)** — más usable en pantalla chica y menos frágil. (B)
-conserva la metáfora pero es mucho más trabajo y peleará con gestos del
-navegador. Decidir con el usuario.
+**A) Lista/stack de notas + libreta a pantalla completa con tab bar.** Elegida
+por ser **menos frágil** (usa dnd-kit *sortable*, patrón probado) y encajar con
+el uso real del teléfono (pulgar, vertical, scroll). (B) —canvas con pinch-zoom
++ paneo— se descarta: mucho más trabajo y pelea con scroll/zoom nativos.
+
+Trade-off aceptado: en teléfono se pierde la metáfora de "escritorio libre"
+(las notas fluyen en lista); se compensa conservando color, rotación leve,
+sombra y reordenar-arrastrando para que siga sintiéndose papelería.
+**Tablet y desktop conservan el canvas libre** — A solo cambia el teléfono.
 
 ---
 
@@ -44,14 +48,12 @@ navegador. Decidir con el usuario.
 Archivos: `modules/desk/views/Desk.tsx`, `modules/postits/components/PostItCard.tsx`,
 `modules/stickers/*`, `shared/ui/RichTextArea.tsx`.
 
-- [ ] **Sensores dnd-kit**: separar `MouseSensor` (distance 6) y `TouchSensor`
-      (`{ delay: 200, tolerance: 8 }`). Así en touch un **tap edita** y una
-      **pulsación sostenida arrastra**; un scroll/tap rápido no arrastra por
-      accidente. Hoy solo hay `PointerSensor` con distance 6 (arrastra
-      demasiado fácil en dedo).
-- [ ] **`touch-action`**: `touch-action: none` en las **zonas de arrastre**
-      del post-it (header/footer/márgenes), NO en el área de texto (que debe
-      poder hacer scroll/seleccionar). Igual para stickers.
+- [x] **Sensores dnd-kit**: separado `MouseSensor` (distance 6) y `TouchSensor`
+      (`{ delay: 200, tolerance: 8 }`) en `Desk.tsx`. En touch un **tap edita**
+      y una **pulsación sostenida arrastra**; un scroll/tap rápido no arrastra.
+- [x] **`touch-action`** (post-it): `touch-none` en el contenedor arrastrable
+      de `PostItCard` y `touch-auto` en el área de texto (scroll/selección).
+      Pendiente: replicar en los stickers colocados.
 - [ ] **Resize handle** (`PostItCard` handler con pointer events): funciona en
       touch pero el objetivo de 16px es muy chico. Agrandar a ≥44px de área
       efectiva y/o mostrarlo solo cuando la nota está "seleccionada".

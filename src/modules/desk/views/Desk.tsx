@@ -1,7 +1,8 @@
 import { useRef } from "react";
 import {
   DndContext,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -33,8 +34,14 @@ export function Desk() {
   useHotkeys([
     { combo: "mod+e", handler: () => addPostIt(), allowInInput: true },
   ]);
+  // Mouse: arrastra tras mover 6px. Touch: pulsación sostenida de 200ms (con
+  // tolerancia de 8px) para arrastrar, de modo que un toque simple edita y un
+  // scroll/toque rápido no arrastra la nota por accidente.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 8 },
+    })
   );
 
   function handleDragEnd(event: DragEndEvent) {
