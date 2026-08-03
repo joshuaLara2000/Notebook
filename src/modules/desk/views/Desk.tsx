@@ -16,7 +16,9 @@ import { NotesSheet } from "@/modules/postits/components/NotesSheet";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
 import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
+import { useBreakpoint } from "@/shared/hooks/useBreakpoint";
 import { clampBoxToBounds } from "@/shared/utils/geometry";
+import { PhoneLayout } from "./PhoneLayout";
 import { DateBadge } from "../components/DateBadge";
 import { AccountMenu } from "../components/AccountMenu";
 import { ShortcutsHelp } from "../components/ShortcutsHelp";
@@ -29,6 +31,8 @@ export function Desk() {
   // Carga y sincroniza el tablero del usuario con Supabase.
   useBoardSync();
   const addPostIt = useBoardStore((s) => s.addPostIt);
+  // En teléfono se cambia el canvas libre por el layout de lista + tab bar.
+  const { isPhone } = useBreakpoint();
 
   // Atajo global: crear un post-it (funciona incluso escribiendo).
   useHotkeys([
@@ -76,6 +80,10 @@ export function Desk() {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div ref={deskRef} className="relative h-dvh w-full overflow-hidden">
+        {isPhone ? (
+          <PhoneLayout />
+        ) : (
+          <>
         {/* top bar: cuenta (izq) · crear (centro) · calendario (der) */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4"
@@ -125,6 +133,8 @@ export function Desk() {
 
         {/* post-its float freely over the whole desk (including the notebook) */}
         <PostItWall />
+          </>
+        )}
       </div>
     </DndContext>
   );

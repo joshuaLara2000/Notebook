@@ -185,12 +185,22 @@ fuera de las vistas: el flujo es `services → hooks → store → view`.
   táctil ≥44 px **sólo en touch** (no meter un target invisible grande en
   escritorio, rompería clics en la esquina); colapsar la **barra superior** en
   pantallas angostas.
-- **Fase 3 — layout de teléfono (opción A), lo más grande, SIN empezar:**
-  tab bar inferior (Notas / Libreta), notas en **lista/stack** (dnd-kit
-  *sortable*) en vez de canvas absoluto, libreta a **pantalla completa** con
-  **swipe** para pasar hoja (hoy solo botones/teclado; el volteo es el
-  `FlipBook` propio con CSS `.nb-flip-*`), y **editor de nota a pantalla
-  completa** para que el teclado no tape el texto.
+- **Fase 3 — layout de teléfono (opción A), INICIADA (⚠️ nunca renderizada en
+  dispositivo — verificar todo):** ya existe el andamiaje, gated en `isPhone`
+  (`PhoneLayout`), así que tablet/desktop no se tocan. Implementado:
+  - **Tab bar inferior** Notas / Libreta (`PhoneLayout`).
+  - **Notas en lista** (`NoteListCard`): cada post-it fluye como tarjeta con
+    color, insights inline y **tap-para-editar**; botón flotante “+” para crear
+    y borrar con confirmación.
+  - **Libreta** reusa `NotebookView` a lo ancho.
+
+  **Pendiente de Fase 3:** reordenar notas por arrastre (dnd-kit *sortable*);
+  **editor de nota a pantalla completa** para que el teclado no tape el texto
+  (hoy se edita inline en la tarjeta); **swipe** para pasar hoja (hoy solo
+  botones — el volteo es el `FlipBook` propio con CSS `.nb-flip-*`); acceso a
+  notas archivadas (hoy la lista muestra solo las activas); auto-focus al crear
+  nota. **Y verificar en un teléfono real** que el layout, el scroll, el teclado
+  y los gestos se sienten bien.
 - **Fase 4 — pulido/a11y:** targets ≥44 px, contraste del marcador
   `--postit-marker` a tamaños chicos, matriz iPhone/Android/iPad.
 

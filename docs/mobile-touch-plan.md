@@ -85,15 +85,18 @@ Archivos: `Desk.tsx`, `NotebookView.tsx`, `PostItWall.tsx`, barra superior.
 
 ## Fase 3 — Layout de teléfono (según decisión A/B)
 
-Si **A (recomendado)**:
-- [ ] **Tab bar inferior**: "Notas" | "Libreta" (y stickers por hoja).
-- [ ] **Notas**: en vez de canvas absoluto, una **lista/grid vertical** con
-      scroll; reordenar por drag (dnd-kit sortable). El post-it conserva color
-      y sensación, pero fluye.
-- [ ] **Libreta**: pantalla completa; **swipe** para pasar hoja (hoy solo
-      botones/teclado — agregar gesto de swipe sobre `FlipBook`).
-- [ ] **Editor de nota**: a pantalla completa (sheet) para que el teclado no
-      tape el texto.
+**A (elegida) — andamiaje implementado, ⚠️ nunca renderizado en dispositivo:**
+- [x] **Tab bar inferior** Notas / Libreta (`PhoneLayout`, gated en `isPhone`).
+- [x] **Notas en lista** (`NoteListCard`): tarjeta que fluye con color,
+      insights inline y tap-para-editar; botón “+” flotante y borrar.
+- [x] **Libreta** reusa `NotebookView` a lo ancho.
+- [ ] **Reordenar** notas por arrastre (dnd-kit *sortable*).
+- [ ] **Editor a pantalla completa** (sheet) para que el teclado no tape el
+      texto (hoy edición inline en la tarjeta).
+- [ ] **Swipe** para pasar hoja sobre `FlipBook` (hoy solo botones/teclado).
+- [ ] Acceso a **notas archivadas** en teléfono (hoy solo activas).
+- [ ] **Auto-focus** al crear una nota nueva.
+- [ ] ⚠️ **Verificar en teléfono real**: layout, scroll, teclado, gestos.
 
 Si **B**: envolver el canvas en un contenedor con pinch-zoom + paneo (p. ej.
 gestos propios o una lib ligera), y desactivar el clamp mientras se hace zoom.
