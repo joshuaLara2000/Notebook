@@ -77,7 +77,15 @@ export function Desk() {
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div ref={deskRef} className="relative h-dvh w-full overflow-hidden">
         {/* top bar: cuenta (izq) · crear (centro) · calendario (der) */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4"
+          // respeta el notch / barra de estado en móviles (viewport-fit=cover)
+          style={{
+            paddingTop: "max(1rem, env(safe-area-inset-top))",
+            paddingLeft: "max(1rem, env(safe-area-inset-left))",
+            paddingRight: "max(1rem, env(safe-area-inset-right))",
+          }}
+        >
           <div className="pointer-events-auto">
             <AccountMenu />
           </div>
@@ -96,7 +104,10 @@ export function Desk() {
             <NotesSheet />
             <StickerSheet />
             <ThemeToggle />
-            <ShortcutsHelp />
+            {/* atajos de teclado: no aplican en táctil, se ocultan ahí */}
+            <span className="hide-on-touch">
+              <ShortcutsHelp />
+            </span>
           </div>
 
           <div className="pointer-events-auto">

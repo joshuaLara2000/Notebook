@@ -32,16 +32,14 @@ sombra y reordenar-arrastrando para que siga sintiéndose papelería.
 
 ## Fase 0 — Fundaciones
 
-- [ ] Hook `useBreakpoint()` en `src/shared/hooks/` (o `useMediaQuery`) que
-      exponga `isPhone` (<640), `isTablet` (640–1024), `isDesktop` (≥1024).
-      Tailwind v4 ya trae `sm/md/lg`; usar CSS cuando alcance y el hook solo
-      cuando la lógica de render dependa del tamaño.
-- [ ] Respetar `prefers-reduced-motion` (lo exige el brief): reducir volteo
-      y easing de drag, sin quitar función. Revisar `globals.css`
-      (`.nb-flip-*`) y transiciones.
-- [ ] `env(safe-area-inset-*)` para notch. Ya se agregó `viewport-fit=cover`
-      en `index.html`; aplicar padding con safe-areas en la barra superior y
-      controles inferiores.
+- [x] Hook `useBreakpoint()` en `src/shared/hooks/useBreakpoint.ts`
+      (`isPhone`/`isTablet`/`isDesktop` + `isCoarsePointer`). Aún **sin
+      consumir** — lo usará el layout de teléfono (Fase 3).
+- [x] `prefers-reduced-motion` en `globals.css`: acorta transiciones y el
+      volteo (a 0.2 s), manteniendo la función.
+- [x] `env(safe-area-inset-*)`: barra superior con padding safe-area en
+      `Desk.tsx` (ya estaba `viewport-fit=cover` en `index.html`). Pendiente:
+      controles inferiores cuando exista el layout de teléfono.
 
 ## Fase 1 — Touch drag correcto (mayor impacto/esfuerzo)
 
@@ -53,7 +51,10 @@ Archivos: `modules/desk/views/Desk.tsx`, `modules/postits/components/PostItCard.
       y una **pulsación sostenida arrastra**; un scroll/tap rápido no arrastra.
 - [x] **`touch-action`** (post-it): `touch-none` en el contenedor arrastrable
       de `PostItCard` y `touch-auto` en el área de texto (scroll/selección).
-      Pendiente: replicar en los stickers colocados.
+      Los stickers (`PlacedSticker`) ya tenían `touch-none`.
+- [x] **Controles hover en táctil**: cerrar/redimensionar de post-its y
+      stickers se revelan en punteros gruesos (`.touch-show` / `.touch-show-block`
+      en `globals.css`). ⚠️ Verificar posición/centrado en dispositivo.
 - [ ] **Resize handle** (`PostItCard` handler con pointer events): funciona en
       touch pero el objetivo de 16px es muy chico. Agrandar a ≥44px de área
       efectiva y/o mostrarlo solo cuando la nota está "seleccionada".
@@ -76,8 +77,8 @@ Archivos: `Desk.tsx`, `NotebookView.tsx`, `PostItWall.tsx`, barra superior.
       Notas, Stickers, tema, atajos, fecha) en una fila; en tablet vertical se
       aprieta. Colapsar acciones secundarias en un menú (kebab/DropdownMenu) o
       un `Sheet`, dejando visibles solo +Post-it y lo esencial.
-- [ ] **ShortcutsHelp**: los atajos de teclado no aplican en touch; ocultarlo
-      en `isPhone/isTablet` táctil o cambiarlo por una hoja de "gestos".
+- [x] **ShortcutsHelp**: oculto en táctil vía `.hide-on-touch`
+      (`@media (hover: none) and (pointer: coarse)`).
 - [ ] El **clamp de límites** (`shared/utils/geometry.ts`) ya mantiene las notas
       dentro del viewport al redimensionar — validar que se comporte bien al
       rotar el dispositivo.

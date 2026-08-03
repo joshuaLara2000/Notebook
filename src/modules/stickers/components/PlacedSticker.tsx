@@ -77,7 +77,7 @@ export function PlacedSticker({
         type="button"
         onPointerDown={(e) => e.stopPropagation()}
         onClick={onRemove}
-        className="bg-ink/70 text-paper absolute -right-2 -top-2 hidden size-5 place-items-center rounded-full group-hover:grid"
+        className="touch-show-block bg-ink/70 text-paper absolute -right-2 -top-2 hidden size-5 place-items-center rounded-full group-hover:grid"
         aria-label="Quitar sticker"
       >
         <X className="size-3" />
@@ -86,7 +86,7 @@ export function PlacedSticker({
       {/* resize handle */}
       <div
         onPointerDown={handleResizeStart}
-        className="border-ink/40 absolute -bottom-1.5 -right-1.5 hidden size-3.5 cursor-nwse-resize rounded-full border-2 bg-white group-hover:block"
+        className="touch-show-block border-ink/40 absolute -bottom-1.5 -right-1.5 hidden size-3.5 cursor-nwse-resize rounded-full border-2 bg-white group-hover:block"
         aria-label="Redimensionar sticker"
         title="Arrastra para redimensionar"
       />
