@@ -8,6 +8,8 @@ interface RichTextAreaProps {
   onEditingChange?: (editing: boolean) => void;
   placeholder?: string;
   className?: string;
+  /** Focus the editor on mount, caret at the end (entering edit from read mode). */
+  autoFocus?: boolean;
 }
 
 /**
@@ -23,6 +25,7 @@ export function RichTextArea({
   onEditingChange,
   placeholder,
   className,
+  autoFocus,
 }: RichTextAreaProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [empty, setEmpty] = useState(
@@ -38,6 +41,17 @@ export function RichTextArea({
     if (!el) return;
     el.innerHTML = html;
     setEmpty((el.textContent || "").trim().length === 0);
+
+    if (autoFocus) {
+      el.focus();
+      // place the caret at the end of the existing content
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+    }
 
     const stop = (e: Event) => e.stopPropagation();
     el.addEventListener("mousedown", stop);
