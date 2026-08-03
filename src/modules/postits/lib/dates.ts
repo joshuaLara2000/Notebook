@@ -94,9 +94,17 @@ function findTime(s: string): TimeHit | null {
   return best;
 }
 
+/**
+ * How specific a date reference is. A bare weekday ("martes") only names a day;
+ * an explicit calendar date ("16 de junio", "12/05") pins it down. When the two
+ * sit next to each other ("martes 16 de junio") they describe the same day.
+ */
+type DateKind = "weekday" | "relative" | "explicit";
+
 interface Candidate {
   index: number;
   length: number;
+  kind: DateKind;
   make: () => Date | null;
 }
 
@@ -104,7 +112,11 @@ interface Candidate {
 function collectCandidates(text: string): Candidate[] {
   const now = new Date();
   const cands: Candidate[] = [];
-  const add = (re: RegExp, make: (m: RegExpExecArray) => Date | null) => {
+  const add = (
+    re: RegExp,
+    kind: DateKind,
+    make: (m: RegExpExecArray) => Date | null
+  ) => {
     re.lastIndex = 0;
     let m: RegExpExecArray | null;
     while ((m = re.exec(text)) !== null) {
@@ -112,18 +124,19 @@ function collectCandidates(text: string): Candidate[] {
       cands.push({
         index: match.index,
         length: match[0].length,
+        kind,
         make: () => make(match),
       });
       if (re.lastIndex === match.index) re.lastIndex++; // guard zero-width
     }
   };
 
-  add(/\bhoy\b/gi, () => {
+  add(/\bhoy\b/gi, "relative", () => {
     const d = new Date(now);
     d.setHours(0, 0, 0, 0);
     return d;
   });
-  add(/\b(mañana|manana)\b/gi, () => {
+  add(/\b(mañana|manana)\b/gi, "relative", () => {
     const d = new Date(now);
     d.setDate(d.getDate() + 1);
     d.setHours(0, 0, 0, 0);
@@ -131,11 +144,13 @@ function collectCandidates(text: string): Candidate[] {
   });
   add(
     /\b(domingo|lunes|martes|miércoles|miercoles|jueves|viernes|sábado|sabado)\b/gi,
+    "weekday",
     (m) => nextWeekday(WEEKDAYS[m[1].toLowerCase()], now)
   );
   // "12 de mayo" (opcional "de 2026")
   add(
     /\b(\d{1,2})\s+de\s+([a-záéíóúñ]+)(?:\s+de\s+(\d{4}))?/gi,
+    "explicit",
     (m) => {
       const month = MONTHS[m[2].toLowerCase()];
       if (month === undefined) return null;
@@ -146,7 +161,7 @@ function collectCandidates(text: string): Candidate[] {
     }
   );
   // dd/mm(/yyyy) — ':' is never a separator here, so times aren't matched
-  add(/\b(\d{1,2})[/\-.](\d{1,2})(?:[/\-.](\d{2,4}))?\b/g, (m) => {
+  add(/\b(\d{1,2})[/\-.](\d{1,2})(?:[/\-.](\d{2,4}))?\b/g, "explicit", (m) => {
     const day = Number(m[1]);
     const month = Number(m[2]) - 1;
     let year = m[3] ? Number(m[3]) : now.getFullYear();
@@ -156,6 +171,34 @@ function collectCandidates(text: string): Candidate[] {
   });
 
   return cands;
+}
+
+type Accepted = DateMatch & { kind: DateKind };
+
+/**
+ * Fuse a weekday that sits right before/after an explicit date into a single
+ * highlight — "martes 16 de junio" is one appointment, not two. Only a
+ * whitespace/comma gap is bridged, and the explicit date wins.
+ */
+function fuseWeekdayWithDate(text: string, accepted: Accepted[]): Accepted[] {
+  const out: Accepted[] = [];
+  for (const m of accepted) {
+    const last = out[out.length - 1];
+    if (last) {
+      const gap = text.slice(last.index + last.length, m.index);
+      const kinds = new Set([last.kind, m.kind]);
+      if (/^[\s,]*$/.test(gap) && kinds.has("weekday") && kinds.has("explicit")) {
+        const explicit = last.kind === "explicit" ? last : m;
+        last.length = m.index + m.length - last.index; // cover the whole span
+        last.date = explicit.date;
+        last.allDay = explicit.allDay;
+        last.kind = "explicit";
+        continue;
+      }
+    }
+    out.push({ ...m });
+  }
+  return out;
 }
 
 /**
@@ -169,8 +212,9 @@ export function findDateMatches(text: string): DateMatch[] {
   const candidates = collectCandidates(text)
     // longer spans first so "4 de agosto" beats a stray numeric match at 4
     .sort((a, b) => a.index - b.index || b.length - a.length);
+  const starts = candidates.map((c) => c.index);
 
-  const matches: DateMatch[] = [];
+  const matches: Accepted[] = [];
   let lastEnd = -1;
   for (const c of candidates) {
     if (c.index < lastEnd) continue; // overlaps an accepted match
@@ -180,17 +224,19 @@ export function findDateMatches(text: string): DateMatch[] {
     let end = c.index + c.length;
     let allDay = true;
     const date = new Date(base);
-    // look for a time right after the date, e.g. "4 de agosto a las 5pm"
-    const time = findTime(text.slice(end, end + 24));
+    // look for a time right after the date ("4 de agosto a las 5pm") but never
+    // past the next date, so a time doesn't get pulled across an intervening one
+    const nextStart = starts.find((s) => s >= end) ?? text.length;
+    const time = findTime(text.slice(end, Math.min(end + 24, nextStart)));
     if (time) {
       date.setHours(time.hour, time.minute, 0, 0);
       allDay = false;
       end += time.index + time.length;
     }
 
-    matches.push({ index: c.index, length: end - c.index, date, allDay });
+    matches.push({ index: c.index, length: end - c.index, date, allDay, kind: c.kind });
     lastEnd = end;
   }
 
-  return matches;
+  return fuseWeekdayWithDate(text, matches).map(({ kind: _kind, ...m }) => m);
 }
