@@ -15,6 +15,7 @@ import { NotesSheet } from "@/modules/postits/components/NotesSheet";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
 import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
+import { clampBoxToBounds } from "@/shared/utils/geometry";
 import { DateBadge } from "../components/DateBadge";
 import { AccountMenu } from "../components/AccountMenu";
 import { ShortcutsHelp } from "../components/ShortcutsHelp";
@@ -47,9 +48,22 @@ export function Desk() {
       return;
     }
 
-    // post-it move
+    // post-it move — clamp to the desk so a note can never be dropped past an
+    // edge (its drag handle would go off-screen and become unreachable).
     const p = store.postits.find((it) => it.id === active.id);
-    if (p) store.movePostIt(p.id, p.x + delta.x, p.y + delta.y);
+    if (p) {
+      const rect = deskRef.current?.getBoundingClientRect();
+      const bounds = rect
+        ? { width: rect.width, height: rect.height }
+        : { width: window.innerWidth, height: window.innerHeight };
+      const { x, y } = clampBoxToBounds(
+        p.x + delta.x,
+        p.y + delta.y,
+        { width: p.width, height: p.height },
+        bounds
+      );
+      store.movePostIt(p.id, x, y);
+    }
   }
 
   return (
