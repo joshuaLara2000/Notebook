@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
 import type { PostIt } from "@/shared/types/board";
 import { POSTIT_STYLES } from "../constants";
@@ -13,6 +13,7 @@ import { NoteMarkedView } from "./NoteMarkedView";
 interface NoteListCardProps {
   postit: PostIt;
   onChange: (html: string) => void;
+  onArchive: () => void;
   onDelete: () => void;
 }
 
@@ -22,7 +23,12 @@ interface NoteListCardProps {
  * insights and tap-to-edit. Grows with its content instead of scrolling inside
  * a fixed box.
  */
-export function NoteListCard({ postit, onChange, onDelete }: NoteListCardProps) {
+export function NoteListCard({
+  postit,
+  onChange,
+  onArchive,
+  onDelete,
+}: NoteListCardProps) {
   const [editing, setEditing] = useState(false);
   const [autoFocus, setAutoFocus] = useState(false);
   const [confirming, setConfirming] = useState(false);
@@ -45,11 +51,12 @@ export function NoteListCard({ postit, onChange, onDelete }: NoteListCardProps) 
 
   return (
     <div
-      className="relative flex flex-col rounded-2xl pt-2 shadow-md"
+      className="relative flex h-full flex-col rounded-2xl pt-2 shadow-md"
       style={{ backgroundColor: style.bg }}
     >
-      {/* content: grows with the note (min-height keeps a comfortable tap area) */}
-      <div className="min-h-20">
+      {/* contenido: crece para llenar la tarjeta (así en el grid, con tarjetas
+          de igual alto por fila, los botones quedan siempre pegados abajo) */}
+      <div className="min-h-20 flex-1">
         {showEditor ? (
           <RichTextArea
             html={postit.text}
@@ -78,8 +85,8 @@ export function NoteListCard({ postit, onChange, onDelete }: NoteListCardProps) 
         insights.length > 0 && <InsightsRow insights={insights} />
       )}
 
-      {/* delete (con confirmación) */}
-      <div className="flex items-center justify-end px-2 pb-1.5">
+      {/* acciones: archivar (guardar en "Todas") o eliminar (con confirmación) */}
+      <div className="flex items-center justify-end gap-1 px-2 pb-1.5">
         {confirming ? (
           <span className="flex items-center gap-1">
             <button
@@ -98,14 +105,26 @@ export function NoteListCard({ postit, onChange, onDelete }: NoteListCardProps) 
             </button>
           </span>
         ) : (
-          <button
-            type="button"
-            onClick={() => setConfirming(true)}
-            aria-label="Eliminar nota"
-            className="text-postit-ink/50 grid size-9 place-items-center rounded-full hover:bg-black/10"
-          >
-            <Trash2 className="size-4" />
-          </button>
+          <>
+            {/* archiva la nota: sale de la lista pero se guarda y se restaura en "Todas" */}
+            <button
+              type="button"
+              onClick={onArchive}
+              aria-label="Guardar nota (se restaura desde Todas)"
+              title="Guardar (quitar de la lista)"
+              className="text-postit-ink/50 grid size-9 place-items-center rounded-full hover:bg-black/10"
+            >
+              <X className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              aria-label="Eliminar nota"
+              className="text-postit-ink/50 grid size-9 place-items-center rounded-full hover:bg-black/10"
+            >
+              <Trash2 className="size-4" />
+            </button>
+          </>
         )}
       </div>
     </div>

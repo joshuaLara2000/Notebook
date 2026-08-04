@@ -1,13 +1,14 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Reactive viewport breakpoint. Tablet-first: the free-canvas desk stays on
- * tablet/desktop, while the phone layout (list/stack + full-screen notebook)
- * is gated on `isPhone`. Also exposes coarse-pointer detection so touch-only
- * affordances can differ from hover ones.
+ * Reactive viewport breakpoint. The free-canvas desk needs width to breathe, so
+ * it only runs on **desktop / tablet landscape** (≥ 1024). Narrower viewports
+ * (phone *and* tablet portrait) use the compact layout — gate that on
+ * `isCompact`. Also exposes coarse-pointer detection so touch-only affordances
+ * can differ from hover ones.
  *
  * Breakpoints match Tailwind's defaults: phone < 640, tablet 640–1023,
- * desktop ≥ 1024.
+ * desktop ≥ 1024. `isCompact` = width < 1024 (phone or tablet portrait).
  */
 export type Breakpoint = "phone" | "tablet" | "desktop";
 
@@ -61,6 +62,8 @@ export function useBreakpoint() {
     isPhone: breakpoint === "phone",
     isTablet: breakpoint === "tablet",
     isDesktop: breakpoint === "desktop",
+    // Teléfono o tablet en vertical: se usa el layout compacto en vez del canvas.
+    isCompact: breakpoint !== "desktop",
     isCoarsePointer,
   };
 }

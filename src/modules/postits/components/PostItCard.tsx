@@ -189,7 +189,7 @@ export function PostItCard({
         {/* resize handle */}
         <div
           onPointerDown={handleResizeStart}
-          className="touch-show absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize opacity-40 transition group-hover:opacity-80"
+          className="touch-show touch-resize absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize opacity-40 transition group-hover:opacity-80"
           style={{
             background: `linear-gradient(135deg, transparent 55%, ${style.fold} 55%)`,
           }}

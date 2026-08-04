@@ -77,13 +77,19 @@ export function AccountMenu() {
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="text-ink/80 hover:text-ink flex items-center gap-1.5 text-2xl font-bold transition"
+            className="text-ink/80 hover:text-ink flex min-w-0 items-center gap-1.5 text-lg font-bold transition lg:text-2xl"
           >
-            <span>
-              {timeGreeting()}
-              {name ? `, ${name}` : ""} {emoji}
+            <span className="truncate">
+              {/* Desktop: saludo completo. Tablet: solo el nombre para ahorrar
+                  ancho (o el saludo si aún no hay nombre). */}
+              <span className="hidden lg:inline">
+                {timeGreeting()}
+                {name ? `, ${name}` : ""}
+              </span>
+              <span className="lg:hidden">{name || timeGreeting()}</span>{" "}
+              {emoji}
             </span>
-            <ChevronDown className="text-ink/40 size-5" />
+            <ChevronDown className="text-ink/40 size-5 shrink-0" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

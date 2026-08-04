@@ -9,10 +9,13 @@ como en escritorio, sin perder la sensación táctil de papelería.
 - **Tablet-first**, luego teléfono. La tablet es el mercado principal.
 - No aplanar la estética: se mantiene el brief de `notebook-ui` (sombras,
   rotación, motion eásado). Aplicar el skill en cada cambio de UI.
-- **Dos modos de layout**, no solo "encoger":
-  - **Canvas libre** (tablet/desktop): el escritorio tal como está.
-  - **Layout de teléfono**: repensado (ver Fase 3), porque arrastrar notas
-    absolutas en una pantalla chica es incómodo.
+- **Dos modos de layout**, no solo "encoger", elegidos por **ancho** (no por
+  clase de dispositivo):
+  - **Canvas libre** (ancho ≥ 1024: tablet horizontal y desktop): el escritorio
+    tal como está.
+  - **Layout compacto** (ancho < 1024: teléfono **y tablet vertical**): lista +
+    tab bar (ver Fase 3), porque arrastrar notas absolutas en una pantalla
+    angosta es incómodo. Se activa con `isCompact` de `useBreakpoint`.
 - Progresivo y verificable por fases; cada fase se prueba con
   `resize_window` (mobile 375 / tablet 768) sobre el dev server.
 
@@ -26,7 +29,8 @@ el uso real del teléfono (pulgar, vertical, scroll). (B) —canvas con pinch-zo
 Trade-off aceptado: en teléfono se pierde la metáfora de "escritorio libre"
 (las notas fluyen en lista); se compensa conservando color, rotación leve,
 sombra y reordenar-arrastrando para que siga sintiéndose papelería.
-**Tablet y desktop conservan el canvas libre** — A solo cambia el teléfono.
+**Tablet horizontal y desktop (≥1024) conservan el canvas libre**; **tablet
+vertical y teléfono (<1024) usan el layout compacto** (`isCompact`).
 
 ---
 
@@ -86,7 +90,8 @@ Archivos: `Desk.tsx`, `NotebookView.tsx`, `PostItWall.tsx`, barra superior.
 ## Fase 3 — Layout de teléfono (según decisión A/B)
 
 **A (elegida) — andamiaje implementado, ⚠️ nunca renderizado en dispositivo:**
-- [x] **Tab bar inferior** Notas / Libreta (`PhoneLayout`, gated en `isPhone`).
+- [x] **Tab bar inferior** Notas / Libreta (`PhoneLayout`, gated en `isCompact`
+      = ancho < 1024, o sea teléfono y tablet vertical).
 - [x] **Notas en lista** (`NoteListCard`): tarjeta que fluye con color,
       insights inline y tap-para-editar; botón “+” flotante y borrar.
 - [x] **Libreta** reusa `NotebookView` a lo ancho.

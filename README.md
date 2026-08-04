@@ -186,7 +186,9 @@ fuera de las vistas: el flujo es `services → hooks → store → view`.
   escritorio, rompería clics en la esquina); colapsar la **barra superior** en
   pantallas angostas.
 - **Fase 3 — layout de teléfono (opción A), INICIADA (⚠️ nunca renderizada en
-  dispositivo — verificar todo):** ya existe el andamiaje, gated en `isPhone`
+  dispositivo — verificar todo):** ya existe el andamiaje, gated en `isCompact`
+  (ancho < 1024 → teléfono **y tablet vertical**; tablet horizontal y desktop
+  conservan el canvas)
   (`PhoneLayout`), así que tablet/desktop no se tocan. Implementado:
   - **Tab bar inferior** Notas / Libreta (`PhoneLayout`).
   - **Notas en lista** (`NoteListCard`): cada post-it fluye como tarjeta con

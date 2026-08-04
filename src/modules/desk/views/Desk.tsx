@@ -31,8 +31,10 @@ export function Desk() {
   // Carga y sincroniza el tablero del usuario con Supabase.
   useBoardSync();
   const addPostIt = useBoardStore((s) => s.addPostIt);
-  // En teléfono se cambia el canvas libre por el layout de lista + tab bar.
-  const { isPhone } = useBreakpoint();
+  // En teléfono y tablet vertical (ancho < 1024) se cambia el canvas libre por
+  // el layout compacto de lista + tab bar; el canvas queda para tablet
+  // horizontal y desktop.
+  const { isCompact } = useBreakpoint();
 
   // Atajo global: crear un post-it (funciona incluso escribiendo).
   useHotkeys([
@@ -80,7 +82,7 @@ export function Desk() {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div ref={deskRef} className="relative h-dvh w-full overflow-hidden">
-        {isPhone ? (
+        {isCompact ? (
           <PhoneLayout />
         ) : (
           <>

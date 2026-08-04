@@ -79,7 +79,7 @@ export function NotesSheet() {
 
       <SheetContent
         side="left"
-        className="w-96 gap-0"
+        className="w-96 max-w-[92vw] gap-0"
         onOpenAutoFocus={(e) => {
           // enfoca el buscador al abrir para escribir sin clic
           e.preventDefault();

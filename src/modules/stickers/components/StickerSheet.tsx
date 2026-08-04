@@ -40,7 +40,7 @@ export function StickerSheet() {
           <StickerIcon className="size-4" /> Stickers
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-80">
+      <SheetContent side="right" className="w-80 max-w-[92vw]">
         <SheetHeader>
           <SheetTitle className="text-2xl font-bold">Stickers</SheetTitle>
           <SheetDescription>

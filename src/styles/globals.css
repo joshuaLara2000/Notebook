@@ -284,6 +284,16 @@
   .hide-on-touch {
     display: none !important;
   }
+  /* Agranda el área táctil del resize handle a ~44px sin cambiar su tamaño
+     visible; el ::before invisible extiende el objetivo hacia el centro. */
+  .touch-resize::before {
+    content: "";
+    position: absolute;
+    top: -28px;
+    left: -28px;
+    right: 0;
+    bottom: 0;
+  }
 }
 
 /* Menos movimiento: mantiene la función del volteo de hoja, solo más corto. */
