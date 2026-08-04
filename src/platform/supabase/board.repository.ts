@@ -134,6 +134,14 @@ export async function loadBoard(): Promise<BoardData> {
     supabase.from("stickers").select("*"),
     supabase.from("board_settings").select("notebook_style").maybeSingle(),
   ]);
+  // Crítico: si una consulta falló, `data` es null. NUNCA lo trates como
+  // "tablero vacío" — lanza para que el llamador aborte y no sobrescriba la nube
+  // con un estado vacío (eso borraba las notas al iniciar sesión con red flaky).
+  const firstError =
+    pagesRes.error ?? postitsRes.error ?? stickersRes.error ?? settingsRes.error;
+  if (firstError) {
+    throw new Error(`No se pudo cargar el tablero: ${firstError.message}`);
+  }
   return {
     pages: ((pagesRes.data as PageRow[]) ?? []).map(fromPageRow),
     postits: ((postitsRes.data as PostitRow[]) ?? []).map(fromPostitRow),
@@ -156,6 +164,14 @@ async function deleteMissing(table: string, ids: string[]) {
 // stickers (FK), y borrar stickers antes que pages.
 export async function saveBoard(userId: string, data: BoardData) {
   if (!supabase) return;
+
+  // Salvaguarda: la app SIEMPRE mantiene ≥1 hoja. Un tablero con 0 hojas es un
+  // estado corrupto (p. ej. una carga fallida), no un usuario que borró todo —
+  // no escribas, para que `deleteMissing` no arrase la nube.
+  if (data.pages.length === 0) {
+    console.warn("saveBoard omitido: tablero sin hojas (estado sospechoso)");
+    return;
+  }
 
   const results = await Promise.all([
     supabase.from("pages").upsert(data.pages.map((p) => toPageRow(p, userId))),

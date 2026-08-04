@@ -18,20 +18,24 @@ export function useBoardSync() {
     let timer: number | undefined;
 
     void (async () => {
-      const data = await loadBoard();
+      // Si la carga falla, NO hidratamos con vacío ni activamos el guardado:
+      // una carga fallida nunca debe terminar borrando el tablero en la nube.
+      const data = await loadBoard().catch((e) => {
+        console.error("useBoardSync: carga del tablero falló, sync abortada", e);
+        return null;
+      });
+      if (!data) return;
+
       useBoardStore.getState().hydrate(data);
       hydratedRef.current = true;
-      // empuja el estado inicial (refleja el default si el remoto estaba vacío)
-      const st = useBoardStore.getState();
-      void saveBoard(userId, {
-        pages: st.pages,
-        postits: st.postits,
-        stickers: st.stickers,
-        notebookStyle: st.notebookStyle,
-      });
-      // guarda cada cambio posterior, con debounce
+      // No se empuja ningún estado inicial: el primer guardado ocurre solo
+      // cuando el usuario hace un cambio real (con debounce). Así, iniciar
+      // sesión jamás dispara un borrado destructivo.
       unsubscribe = useBoardStore.subscribe((state) => {
         if (!hydratedRef.current) return;
+        // Defensa extra: no guardar si la sesión ya cambió (evita carreras al
+        // cerrar sesión, cuando reset() vacía el store).
+        if (useAuthStore.getState().user?.id !== userId) return;
         if (timer) window.clearTimeout(timer);
         timer = window.setTimeout(() => void saveBoard(userId, state), 800);
       });
