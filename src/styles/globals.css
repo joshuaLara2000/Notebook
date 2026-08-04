@@ -267,3 +267,49 @@
 .nb-flip-prev {
   animation: nb-flip-prev 0.55s ease-in-out forwards;
 }
+
+/* ---- Adaptaciones touch / mobile ---- */
+
+/* Los controles (cerrar, redimensionar) que en escritorio se revelan al pasar
+   el cursor no existen en táctil. En punteros gruesos (touch) los mostramos
+   siempre; en escritorio conservan su comportamiento hover intacto. */
+@media (hover: none) and (pointer: coarse) {
+  .touch-show {
+    opacity: 1 !important;
+  }
+  .touch-show-block {
+    display: grid !important;
+    opacity: 1 !important;
+  }
+  .hide-on-touch {
+    display: none !important;
+  }
+  /* Agranda el área táctil del resize handle a ~44px sin cambiar su tamaño
+     visible; el ::before invisible extiende el objetivo hacia el centro. */
+  .touch-resize::before {
+    content: "";
+    position: absolute;
+    top: -28px;
+    left: -28px;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+/* Menos movimiento: mantiene la función del volteo de hoja, solo más corto. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+  .nb-flip-next {
+    animation: nb-flip-next 0.2s ease-in-out forwards !important;
+  }
+  .nb-flip-prev {
+    animation: nb-flip-prev 0.2s ease-in-out forwards !important;
+  }
+}

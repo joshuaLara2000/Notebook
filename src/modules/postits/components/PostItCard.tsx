@@ -109,7 +109,9 @@ export function PostItCard({
       {...listeners}
       onPointerDown={handleContainerPointerDown}
       className={cn(
-        "group pointer-events-auto absolute select-none",
+        // touch-none: el gesto lo maneja dnd-kit, no el navegador (el área de
+        // texto vuelve a touch-auto para poder hacer scroll/seleccionar).
+        "group pointer-events-auto absolute touch-none select-none",
         editing ? "cursor-default" : isDragging ? "cursor-grabbing" : "cursor-grab"
       )}
       style={{
@@ -141,7 +143,7 @@ export function PostItCard({
           type="button"
           onPointerDown={stop}
           onClick={onArchive}
-          className="absolute right-1 top-1 rounded p-0.5 text-postit-ink/40 opacity-0 transition hover:bg-black/10 hover:text-postit-ink group-hover:opacity-100"
+          className="touch-show absolute right-1 top-1 rounded p-0.5 text-postit-ink/40 opacity-0 transition hover:bg-black/10 hover:text-postit-ink group-hover:opacity-100"
           aria-label="Quitar del tablero (se guarda en la lista)"
           title="Quitar del tablero"
         >
@@ -154,7 +156,7 @@ export function PostItCard({
           the footer, and the side margins — so both the top and bottom bands
           work as drag handles.
         */}
-        <div className="min-h-0 flex-1" onPointerDown={stop}>
+        <div className="min-h-0 flex-1 touch-auto" onPointerDown={stop}>
           {showEditor ? (
             <RichTextArea
               html={postit.text}
@@ -187,7 +189,7 @@ export function PostItCard({
         {/* resize handle */}
         <div
           onPointerDown={handleResizeStart}
-          className="absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize opacity-40 transition group-hover:opacity-80"
+          className="touch-show touch-resize absolute bottom-0 right-0 h-4 w-4 cursor-nwse-resize opacity-40 transition group-hover:opacity-80"
           style={{
             background: `linear-gradient(135deg, transparent 55%, ${style.fold} 55%)`,
           }}

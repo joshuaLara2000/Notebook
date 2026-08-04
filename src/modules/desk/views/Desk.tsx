@@ -1,7 +1,8 @@
 import { useRef } from "react";
 import {
   DndContext,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -15,7 +16,9 @@ import { NotesSheet } from "@/modules/postits/components/NotesSheet";
 import { NotebookView } from "@/modules/notebook/views/NotebookView";
 import { StickerSheet } from "@/modules/stickers/components/StickerSheet";
 import { MOD_LABEL, useHotkeys } from "@/shared/hooks/useHotkeys";
+import { useBreakpoint } from "@/shared/hooks/useBreakpoint";
 import { clampBoxToBounds } from "@/shared/utils/geometry";
+import { PhoneLayout } from "./PhoneLayout";
 import { DateBadge } from "../components/DateBadge";
 import { AccountMenu } from "../components/AccountMenu";
 import { ShortcutsHelp } from "../components/ShortcutsHelp";
@@ -28,13 +31,23 @@ export function Desk() {
   // Carga y sincroniza el tablero del usuario con Supabase.
   useBoardSync();
   const addPostIt = useBoardStore((s) => s.addPostIt);
+  // En teléfono y tablet vertical (ancho < 1024) se cambia el canvas libre por
+  // el layout compacto de lista + tab bar; el canvas queda para tablet
+  // horizontal y desktop.
+  const { isCompact } = useBreakpoint();
 
   // Atajo global: crear un post-it (funciona incluso escribiendo).
   useHotkeys([
     { combo: "mod+e", handler: () => addPostIt(), allowInInput: true },
   ]);
+  // Mouse: arrastra tras mover 6px. Touch: pulsación sostenida de 200ms (con
+  // tolerancia de 8px) para arrastrar, de modo que un toque simple edita y un
+  // scroll/toque rápido no arrastra la nota por accidente.
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 8 },
+    })
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -69,8 +82,20 @@ export function Desk() {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div ref={deskRef} className="relative h-dvh w-full overflow-hidden">
+        {isCompact ? (
+          <PhoneLayout />
+        ) : (
+          <>
         {/* top bar: cuenta (izq) · crear (centro) · calendario (der) */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-start justify-between p-4"
+          // respeta el notch / barra de estado en móviles (viewport-fit=cover)
+          style={{
+            paddingTop: "max(1rem, env(safe-area-inset-top))",
+            paddingLeft: "max(1rem, env(safe-area-inset-left))",
+            paddingRight: "max(1rem, env(safe-area-inset-right))",
+          }}
+        >
           <div className="pointer-events-auto">
             <AccountMenu />
           </div>
@@ -89,7 +114,10 @@ export function Desk() {
             <NotesSheet />
             <StickerSheet />
             <ThemeToggle />
-            <ShortcutsHelp />
+            {/* atajos de teclado: no aplican en táctil, se ocultan ahí */}
+            <span className="hide-on-touch">
+              <ShortcutsHelp />
+            </span>
           </div>
 
           <div className="pointer-events-auto">
@@ -107,6 +135,8 @@ export function Desk() {
 
         {/* post-its float freely over the whole desk (including the notebook) */}
         <PostItWall />
+          </>
+        )}
       </div>
     </DndContext>
   );

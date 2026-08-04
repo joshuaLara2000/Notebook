@@ -145,6 +145,67 @@ src/
 La arquitectura sigue las convenciones de módulos de proyectos de referencia. El transporte (Supabase) se mantiene
 fuera de las vistas: el flujo es `services → hooks → store → view`.
 
+## 📱 Estado móvil / touch (handoff)
+
+> **Para el próximo agente:** la adaptación móvil está **en progreso** en la rama
+> `feat/mobile-touch`. El plan completo por fases está en
+> [`docs/mobile-touch-plan.md`](docs/mobile-touch-plan.md). Varios cambios se
+> hicieron **sin poder probarse en un dispositivo táctil real** (la app está tras
+> login de Supabase y los gestos no se emulan bien). **Hay que verificarlos en
+> tablet/teléfono reales.** La decisión de layout de teléfono es la **opción A**
+> (lista/stack + libreta a pantalla completa), documentada en el plan.
+
+**Ya implementado (⚠️ verificar en dispositivo):**
+
+- **PWA instalable** (rama `dev`, ya fusionado): manifest + service worker.
+  Comprobar instalación en Android/iOS/desktop.
+- **Touch drag** (`Desk.tsx`): `MouseSensor` + `TouchSensor` (delay 200 ms).
+  Verificar: un **toque simple edita** la nota; **mantener ~0.2 s y mover
+  arrastra**; un scroll rápido no arrastra por accidente.
+- **`touch-action`**: `touch-none` en el contenedor de post-it/sticker y
+  `touch-auto` en el área de texto. Verificar que el texto sigue con scroll y
+  que arrastrar es fluido.
+- **Libreta responsive** (`NotebookView.computeBookSize`): ya no se desborda a
+  lo ancho. Verificar en tablet vertical/horizontal y teléfono.
+- **Controles hover en táctil**: los botones cerrar/redimensionar de post-its y
+  stickers usaban `group-hover` (invisible en touch). Ahora se revelan en
+  punteros gruesos vía `.touch-show` / `.touch-show-block`
+  (`@media (hover: none) and (pointer: coarse)` en `globals.css`).
+  **Verificar que aparecen y son tocables, y que su posición/centrado se ve bien.**
+- **`prefers-reduced-motion`**: reduce transiciones y acorta el volteo a 0.2 s.
+  Verificar que el volteo de hoja sigue funcionando (no romper `FlipBook`).
+- **Safe-area**: la barra superior respeta el notch (`env(safe-area-inset-*)`).
+- **Atajos de teclado** ocultos en táctil (`.hide-on-touch`).
+- **`useBreakpoint()`** (`src/shared/hooks/`): hook base para el layout de
+  teléfono; aún **sin consumir**.
+
+**Falta por implementar:**
+
+- **Fase 1/2 (pendientes):** agrandar el *resize handle* del post-it a un área
+  táctil ≥44 px **sólo en touch** (no meter un target invisible grande en
+  escritorio, rompería clics en la esquina); colapsar la **barra superior** en
+  pantallas angostas.
+- **Fase 3 — layout de teléfono (opción A), INICIADA (⚠️ nunca renderizada en
+  dispositivo — verificar todo):** ya existe el andamiaje, gated en `isCompact`
+  (ancho < 1024 → teléfono **y tablet vertical**; tablet horizontal y desktop
+  conservan el canvas)
+  (`PhoneLayout`), así que tablet/desktop no se tocan. Implementado:
+  - **Tab bar inferior** Notas / Libreta (`PhoneLayout`).
+  - **Notas en lista** (`NoteListCard`): cada post-it fluye como tarjeta con
+    color, insights inline y **tap-para-editar**; botón flotante “+” para crear
+    y borrar con confirmación.
+  - **Libreta** reusa `NotebookView` a lo ancho.
+
+  **Pendiente de Fase 3:** reordenar notas por arrastre (dnd-kit *sortable*);
+  **editor de nota a pantalla completa** para que el teclado no tape el texto
+  (hoy se edita inline en la tarjeta); **swipe** para pasar hoja (hoy solo
+  botones — el volteo es el `FlipBook` propio con CSS `.nb-flip-*`); acceso a
+  notas archivadas (hoy la lista muestra solo las activas); auto-focus al crear
+  nota. **Y verificar en un teléfono real** que el layout, el scroll, el teclado
+  y los gestos se sienten bien.
+- **Fase 4 — pulido/a11y:** targets ≥44 px, contraste del marcador
+  `--postit-marker` a tamaños chicos, matriz iPhone/Android/iPad.
+
 ---
 
 <div align="center">
